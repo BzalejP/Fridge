@@ -7,9 +7,9 @@
 <meta name="description" content="Wpisz, co masz w lodówce, i znajdź przepisy, które to wykorzystują.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&subset=latin-ext&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* Layout: one column — the "fridge" (what you have) on top, matching recipes below. */
+/* Layout: one column — the "fridge" (what you have) on top, matching recipes below, Polish recipe sites last. */
 :root{
   --bg:#eef2f4; --surface:#ffffff; --surface-2:#e3e9ec; --line:#cdd6db;
   --fg:#16232b; --muted:#5a6a73; --accent:#e8a317; --accent-ink:#2a1c00;
@@ -28,7 +28,6 @@
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--f-body);
   padding-inline:16px;padding-block:calc(28px + env(safe-area-inset-top,0px)) calc(48px + env(safe-area-inset-bottom,0px))}
-img{max-width:100%;display:block}
 a{color:inherit}
 .wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
 h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
@@ -48,40 +47,36 @@ button{font:inherit;cursor:pointer}
 .btn:hover{border-color:var(--muted)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:38px;align-items:center}
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--have-bg);color:var(--have);border-radius:999px;padding:5px 6px 5px 12px;font-weight:700;font-size:.92rem}
+.chip.unknown{background:transparent;border:1px dashed var(--muted);color:var(--muted)}
 .chip button{border:0;background:transparent;color:inherit;width:24px;height:24px;border-radius:50%;line-height:1;font-size:1.05rem}
-.chip button:hover{background:color-mix(in srgb,var(--have) 18%,transparent)}
+.chip button:hover{background:color-mix(in srgb,currentColor 15%,transparent)}
+.hint{color:var(--muted);font-size:.85rem;margin:-6px 0 0}
 .empty{color:var(--muted);font-size:.92rem}
 .quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .quick button{border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:4px 10px;font-size:.85rem}
 .quick button:hover{color:var(--fg);border-color:var(--muted)}
-.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .opts label{display:flex;flex-direction:column;gap:4px}
 select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.toggles{display:flex;flex-direction:column;gap:6px}
 .toggle{display:flex;align-items:flex-start;gap:8px;font-size:.92rem;color:var(--muted)}
 .toggle input{margin-top:4px;accent-color:var(--accent)}
-.go{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.cta{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:12px 20px;font:800 1.02rem var(--f-display)}
-.cta:disabled{opacity:.55;cursor:default}
-.status{color:var(--muted);font-size:.92rem}
-.status.err{color:var(--miss)}
 
 .results{display:flex;flex-direction:column;gap:14px}
 .results-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
 .results-head h2{font-size:1.5rem}
 .count{font:500 .78rem var(--f-mono);color:var(--muted)}
-.list{display:flex;flex-direction:column;gap:14px}
+.list{display:flex;flex-direction:column;gap:12px}
 .recipe{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.recipe summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;padding:14px}
+.recipe summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:6px;padding:16px 18px}
 .recipe summary::-webkit-details-marker{display:none}
-.thumb{width:96px;height:96px;border-radius:8px;object-fit:cover;background:var(--surface-2)}
-.head{display:flex;flex-direction:column;gap:6px;min-width:0}
 .recipe h3{font-size:1.15rem;font-weight:700}
-.meta{font:500 .76rem var(--f-mono);color:var(--muted);letter-spacing:.03em}
-.score{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.85rem;font-weight:700}
+.meta{font:500 .76rem var(--f-mono);color:var(--muted);letter-spacing:.03em;display:flex;gap:6px 14px;flex-wrap:wrap}
+.desc{margin:0;color:var(--muted);font-size:.95rem}
+.score{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.82rem;font-weight:700;margin-top:2px}
 .pill{padding:2px 9px;border-radius:999px}
 .pill.have{background:var(--have-bg);color:var(--have)}
 .pill.miss{background:var(--miss-bg);color:var(--miss)}
-.pill.ok{background:var(--have-bg);color:var(--have)}
 .more{font-size:.82rem;color:var(--muted);font-weight:700}
 .recipe[open] .more{display:none}
 .body{border-top:1px solid var(--line);padding:16px 18px 20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:24px}
@@ -93,12 +88,18 @@ select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:
 .ings li.m .mk{color:var(--miss)}
 .ings li.s .mk{color:var(--muted)}
 .amt{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.legend{margin-top:10px}
 .steps{margin:8px 0 0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
-.links{grid-column:1/-1;display:flex;gap:14px;flex-wrap:wrap;font-size:.9rem;font-weight:700}
-.skeleton{height:126px;border-radius:var(--r);background:linear-gradient(90deg,var(--surface) 0%,var(--surface-2) 50%,var(--surface) 100%);background-size:200% 100%;animation:sh 1.4s infinite linear;border:1px solid var(--line)}
-@keyframes sh{to{background-position:-200% 0}}
-@media (prefers-reduced-motion:reduce){.skeleton{animation:none}}
+.links{grid-column:1/-1;font-size:.9rem;font-weight:700}
 .note{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:18px;color:var(--muted)}
+.showmore{align-self:flex-start}
+
+.sites{background:var(--surface-2);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.sites h2{font-size:1.15rem}
+.sites p{margin:0;color:var(--muted);font-size:.92rem}
+.site-links{display:flex;flex-wrap:wrap;gap:8px}
+.site-links a{text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-weight:700;font-size:.92rem}
+.site-links a:hover{border-color:var(--muted)}
 footer{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padding-top:14px}
 </style>
 </head>
@@ -106,7 +107,7 @@ footer{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padd
 <div class="wrap">
   <header>
     <h1>Z lodówki <span>na talerz</span></h1>
-    <p class="lede">Dodaj to, co masz w lodówce i szafkach. Dostaniesz przepisy, które wykorzystują jak najwięcej z tego, a brakujące składniki zostaną zaznaczone.</p>
+    <p class="lede">Dodaj to, co masz w lodówce i szafkach. Przepisy poniżej ułożą się od tych, które wykorzystują najwięcej twoich składników, a brakujące produkty zostaną zaznaczone.</p>
   </header>
 
   <section class="fridge" aria-labelledby="fridge-h">
@@ -115,41 +116,51 @@ footer{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padd
       <button class="linkbtn" id="clearBtn" type="button">Wyczyść wszystko</button>
     </div>
     <form class="addrow" id="addForm">
-      <input id="ingInput" type="text" list="ingList" autocomplete="off" placeholder="np. kurczak, por, feta" aria-label="Dodaj składnik">
+      <input id="ingInput" type="text" list="ingList" autocomplete="off" placeholder="np. kurczak, ziemniaki, śmietana" aria-label="Dodaj składnik">
       <datalist id="ingList"></datalist>
       <button class="btn" type="submit">Dodaj</button>
     </form>
     <div class="chips" id="chips" aria-live="polite"></div>
+    <p class="hint" id="unknownHint" hidden>Składników z przerywaną ramką nie ma w moich przepisach — zostaną użyte w wyszukiwaniu na polskich stronach na dole.</p>
     <div>
       <div class="label">Szybkie dodawanie</div>
       <div class="quick" id="quick"></div>
     </div>
     <div class="opts">
       <label><span class="label">Posiłek</span>
-        <select id="meal">
+        <select id="typ">
           <option value="any">Cokolwiek</option>
-          <option value="main" selected>Dania główne</option>
-          <option value="breakfast">Śniadanie</option>
-          <option value="side">Dodatki i przystawki</option>
-          <option value="dessert">Desery</option>
+          <option value="obiad" selected>Obiad</option>
+          <option value="zupa">Zupa</option>
+          <option value="sniadanie">Śniadanie i kolacja</option>
+          <option value="salatka">Sałatki i przekąski</option>
+          <option value="deser">Desery i wypieki</option>
+        </select></label>
+      <label><span class="label">Czas</span>
+        <select id="czas">
+          <option value="0">Bez limitu</option>
+          <option value="20">Do 20 min</option>
+          <option value="30">Do 30 min</option>
+          <option value="45">Do 45 min</option>
+          <option value="60">Do godziny</option>
         </select></label>
       <label><span class="label">Dieta</span>
-        <select id="diet">
+        <select id="dieta">
           <option value="none">Bez ograniczeń</option>
-          <option value="vegetarian">Wegetariańska</option>
-          <option value="vegan">Wegańska</option>
+          <option value="wege">Wegetariańska</option>
+          <option value="weganskie">Wegańska</option>
+          <option value="bezmiesa">Bez mięsa (z rybą)</option>
         </select></label>
       <label><span class="label">Sortuj</span>
         <select id="sort">
           <option value="used">Najwięcej moich składników</option>
           <option value="missing">Najmniej do kupienia</option>
+          <option value="time">Najszybsze</option>
         </select></label>
     </div>
-    <label class="toggle"><input type="checkbox" id="staples" checked> Mam podstawowe produkty (sól, pieprz, olej, masło, mąka, cukier, czosnek, cebula, bulion, woda)</label>
-    <label class="toggle"><input type="checkbox" id="translate" checked> Tłumacz przepisy na polski (automatycznie, przez internet)</label>
-    <div class="go">
-      <button class="cta" id="findBtn" type="button">Znajdź przepisy</button>
-      <span class="status" id="status" role="status"></span>
+    <div class="toggles">
+      <label class="toggle"><input type="checkbox" id="staples" checked> Mam podstawowe produkty: sól, pieprz, olej, oliwa, masło, mąka, cukier, czosnek, cebula, bulion</label>
+      <label class="toggle"><input type="checkbox" id="spices" checked> Mam typowe przyprawy: majeranek, papryka mielona, liść laurowy, ziele angielskie, oregano, cynamon i podobne</label>
     </div>
   </section>
 
@@ -159,372 +170,314 @@ footer{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padd
       <span class="count" id="count"></span>
     </div>
     <div class="list" id="list"></div>
+    <button class="btn showmore" id="moreBtn" type="button" hidden>Pokaż więcej</button>
   </section>
 
-  <footer>Przepisy i zdjęcia pochodzą z <a href="https://www.themealdb.com" target="_blank" rel="noopener">TheMealDB</a> (po angielsku), a tłumaczenia z <a href="https://mymemory.translated.net" target="_blank" rel="noopener">MyMemory</a>. Tłumaczenie jest automatyczne i ma dzienny limit, więc czasem część tekstu zostanie po angielsku. Filtr wegetariański i wegański opiera się na kategorii i składnikach przepisu — sprawdź, jeśli to ważne.</footer>
+  <section class="sites" aria-labelledby="sites-h">
+    <h2 id="sites-h">Szukaj dalej na polskich stronach</h2>
+    <p id="sitesText">Otwiera wyszukiwanie przepisów z twoimi składnikami w nowej karcie.</p>
+    <div class="site-links" id="siteLinks"></div>
+  </section>
+
+  <footer>Przepisy w tej bazie są zapisane w pliku <code>przepisy.js</code> — możesz tam dopisywać własne. Wyszukiwanie na stronach zewnętrznych działa przez Google.</footer>
 </div>
 
+<script src="przepisy.js"></script>
 <script>
-const API="https://www.themealdb.com/api/json/v1/1/";
-const TR_API="https://api.mymemory.translated.net/get";
-
-/* Polish → English ingredient dictionary. Format: english name(s) separated by "/" | Polish forms (first one is shown). */
-const DICT_SRC=`chicken|kurczak,kurczaka,kurczaki,kurczakiem,mięso z kurczaka,kurczę
-chicken breast|pierś z kurczaka,piersi z kurczaka,filet z kurczaka,filety z kurczaka,pierś kurczaka,piersi kurczaka
-chicken thighs|udka z kurczaka,udko z kurczaka,udka kurczaka,podudzia,podudzie
-beef|wołowina,wołowiny
-minced beef|mięso mielone,mielone,mielona wołowina,wołowina mielona,mielone mięso
-pork|wieprzowina,wieprzowiny,schab,karkówka
-lamb|jagnięcina,baranina
-bacon|boczek,bekon
-ham|szynka,szynki
-sausages|kiełbasa,kiełbaski,kiełbasy,parówki,parówka
-chorizo|chorizo
-turkey|indyk,indyka
-duck|kaczka,kaczki
-salmon|łosoś,łososia
-tuna|tuńczyk,tuńczyka
-cod|dorsz,dorsza
-prawns/king prawns|krewetki,krewetka
-white fish|ryba,ryby,biała ryba
-eggs|jajka,jajko,jaja,jajo,jajek,jaj
-milk|mleko
-butter|masło
-double cream/heavy cream|śmietanka,śmietana kremówka,kremówka,śmietana 30%
-sour cream|śmietana,kwaśna śmietana,śmietana 18%
-cheese|ser,sery,ser żółty
-cheddar cheese|cheddar,ser cheddar
-parmesan|parmezan
-mozzarella|mozzarella
-feta|feta,ser feta
-cream cheese|serek śmietankowy,ser kremowy,serek kremowy
-greek yogurt|jogurt grecki
-yogurt|jogurt,jogurt naturalny
-rice|ryż
-pasta|makaron
-spaghetti|spaghetti
-noodles|makaron azjatycki,makaron ryżowy,noodle
-bread|chleb,pieczywo,bułka,bułki
-flour|mąka
-potatoes|ziemniaki,ziemniak,kartofle
-sweet potatoes|bataty,batat
-tomatoes|pomidory,pomidor
-cherry tomatoes|pomidorki koktajlowe,pomidorki
-chopped tomatoes|pomidory z puszki,pomidory krojone,pomidory w puszce
-tomato puree|koncentrat pomidorowy,przecier pomidorowy,passata
-onion|cebula,cebule
-red onions|czerwona cebula
-spring onions|dymka,cebulka dymka
-chives|szczypiorek
-garlic|czosnek
-carrots|marchew,marchewka,marchewki
-red pepper/green pepper/yellow pepper|papryka,papryki,papryka czerwona,papryka zielona
-cucumber|ogórek,ogórki
-courgettes|cukinia,cukinie
-aubergine|bakłażan,bakłażany,oberżyna
-broccoli|brokuł,brokuły
-cauliflower|kalafior
-cabbage|kapusta
-spinach|szpinak
-lettuce|sałata
-mushrooms|pieczarki,pieczarka,grzyby,grzyb
-peas|groszek,groszek zielony
-green beans|fasolka szparagowa
-kidney beans|fasola,fasola czerwona
-chickpeas|ciecierzyca,cieciorka
-lentils|soczewica
-sweetcorn|kukurydza
-leek|por,pory
-celery|seler,seler naciowy
-avocado|awokado
-lemon|cytryna,cytryny
-lime|limonka,limonki
-apples|jabłka,jabłko
-bananas|banany,banan
-strawberries|truskawki,truskawka
-blueberries|borówki,jagody
-oranges|pomarańcze,pomarańcza
-honey|miód
-sugar|cukier
-brown sugar|cukier trzcinowy,brązowy cukier
-olive oil|oliwa,oliwa z oliwek
-vegetable oil|olej,olej roślinny,olej rzepakowy
-salt|sól
-black pepper|pieprz,pieprz czarny
-soy sauce|sos sojowy
-coconut milk|mleko kokosowe
-chocolate|czekolada
-dark chocolate|gorzka czekolada
-cocoa|kakao
-ginger|imbir
-chilli|chili,papryczka chili,papryczki chili
-basil|bazylia
-parsley|pietruszka,natka pietruszki,natka
-coriander|kolendra
-dill|koperek,koper
-thyme|tymianek
-rosemary|rozmaryn
+/*
+  Słownik składników: "nazwa>rodzic|odmiany". Nazwa to forma używana w przepisy.js.
+  Rodzic łączy rodzinę produktów: kto ma „kurczaka”, ma też czym zastąpić „pierś z kurczaka” i odwrotnie.
+*/
+const SLOWNIK=`kurczak|kurczak,kurczaka,kurczaki,kurczę,mięso z kurczaka,drób,porcja rosołowa
+pierś z kurczaka>kurczak|pierś z kurczaka,piersi z kurczaka,filet z kurczaka,filety z kurczaka,pierś kurczaka,piersi kurczaka,filet z piersi
+udka z kurczaka>kurczak|udka z kurczaka,udko z kurczaka,udka,udko,podudzia,podudzie,ćwiartki z kurczaka
+wątróbka drobiowa|wątróbka drobiowa,wątróbka,wątróbki,wątroba
+wieprzowina|wieprzowina,wieprzowiny,mięso wieprzowe
+schab>wieprzowina|schab,schabu,kotlety schabowe
+karkówka>wieprzowina|karkówka,karkówki
+łopatka wieprzowa>wieprzowina|łopatka wieprzowa,łopatka,łopatki
+wołowina|wołowina,wołowiny,mięso wołowe,gulaszowe
+mięso mielone|mięso mielone,mielone,mięsa mielonego,mielone mięso,mięso mielone wieprzowe
+wołowina mielona>mięso mielone|wołowina mielona,mielona wołowina,mielone wołowe
+kiełbasa|kiełbasa,kiełbasy,kiełbaski,kiełbaska,parówki,parówka
+biała kiełbasa>kiełbasa|biała kiełbasa,białej kiełbasy
+boczek|boczek,boczku,bekon,boczek wędzony
+szynka|szynka,szynki,szynkę,wędlina
+łosoś|łosoś,łososia,łososie,filet z łososia
+dorsz|dorsz,dorsza,filet z dorsza,ryba,ryby,biała ryba,mintaj,miruna
+tuńczyk|tuńczyk,tuńczyka,tuńczyk z puszki
+krewetki|krewetki,krewetka,krewetek
+śledź|śledź,śledzie,śledzia,matjasy,matjas
+makrela wędzona|makrela wędzona,makrela,makreli,wędzona makrela
+jajka|jajka,jajko,jaja,jajo,jajek,jaj
+mleko|mleko,mleka
+masło|masło,masła
+śmietana|śmietana,śmietany,kwaśna śmietana,śmietana 18%,śmietana 12%
+śmietanka>śmietana|śmietanka,śmietanki,śmietana 30%,kremówka,śmietana kremówka,słodka śmietanka
+jogurt naturalny|jogurt naturalny,jogurt,jogurtu,jogurt grecki
+twaróg|twaróg,twarogu,ser biały,biały ser,twarożek
+ser żółty|ser żółty,ser,sera,żółty ser,gouda,edam,cheddar
+parmezan|parmezan,parmezanu,grana padano
+mozzarella|mozzarella,mozzarelli
+feta|feta,fety,ser feta,ser sałatkowy
+ziemniaki|ziemniaki,ziemniak,ziemniaków,kartofle,kartofel,młode ziemniaki
+ryż|ryż,ryżu,ryż basmati,ryż jaśminowy,arborio
+makaron|makaron,makaronu,penne,świderki,kokardki,nitki,łazanki,tagliatelle
+spaghetti>makaron|spaghetti
+kasza gryczana|kasza gryczana,kaszy gryczanej,gryczana,kasza
+kasza jęczmienna|kasza jęczmienna,pęczak,kasza pęczak,jęczmienna
+płatki owsiane|płatki owsiane,płatków owsianych,owsianka,płatki
+pieczywo|pieczywo,pieczywa
+chleb>pieczywo|chleb,chleba,chleb tostowy,tosty
+bułka>pieczywo|bułka,bułki,bułek,bułeczki,kajzerka
+bagietka>pieczywo|bagietka,bagietki,ciabatta
+bułka tarta|bułka tarta,bułki tartej,panierka
+tortilla|tortilla,tortille,tortilli,wrapy,placki tortilla
+mąka|mąka,mąki,mąka pszenna
+mąka ziemniaczana|mąka ziemniaczana,skrobia
+cukier|cukier,cukru
+cukier puder|cukier puder
+cukier waniliowy|cukier waniliowy,wanilia
+proszek do pieczenia|proszek do pieczenia,proszek
+drożdże|drożdże,drożdży
+kakao|kakao
+czekolada|czekolada,czekolady,mleczna czekolada
+gorzka czekolada>czekolada|gorzka czekolada,ciemna czekolada
+miód|miód,miodu
+pomidory|pomidory,pomidor,pomidorów,świeże pomidory
+pomidorki koktajlowe>pomidory|pomidorki koktajlowe,pomidorki,pomidorki cherry,koktajlowe
+pomidory z puszki>pomidory|pomidory z puszki,pomidory krojone,pomidory w puszce,krojone pomidory,pomidory puszka
+przecier pomidorowy|przecier pomidorowy,passata,przecier,sos pomidorowy
+koncentrat pomidorowy|koncentrat pomidorowy,koncentrat
+cebula|cebula,cebuli,cebule,biała cebula,żółta cebula
+cebula czerwona>cebula|cebula czerwona,czerwona cebula
+cebula dymka|cebula dymka,dymka,cebulka dymka,dymki
+szczypiorek|szczypiorek,szczypiorku,szczypior
+czosnek|czosnek,czosnku,ząbek czosnku
+marchew|marchew,marchewka,marchewki,marchwi,marchewek
+pietruszka|pietruszka,korzeń pietruszki,pietruszki
+seler|seler,selera,seler korzeniowy,seler naciowy
+por|por,pora,pory
+papryka|papryka,papryki,papryk,papryka czerwona,papryka zielona,papryka żółta,czerwona papryka
+ogórek|ogórek,ogórki,ogórków,świeży ogórek,ogórek zielony
+ogórek kiszony|ogórek kiszony,ogórki kiszone,kiszone ogórki,kiszony ogórek,ogórki konserwowe,korniszony
+cukinia|cukinia,cukinie,cukinii
+bakłażan|bakłażan,bakłażany,oberżyna
+brokuł|brokuł,brokuły,brokułu,brokułów
+kalafior|kalafior,kalafiora
+kapusta|kapusta,kapusty,biała kapusta,kapusta biała,kapusta włoska,młoda kapusta
+kapusta kiszona|kapusta kiszona,kiszona kapusta,kapusty kiszonej
+szpinak|szpinak,szpinaku,baby szpinak
+sałata|sałata,sałaty,sałata rzymska,rukola,mix sałat
+pieczarki|pieczarki,pieczarka,pieczarek,grzyby,grzyby świeże,boczniaki
+suszone grzyby|suszone grzyby,grzyby suszone,borowiki suszone
+groszek|groszek,groszku,groszek zielony,groszek mrożony
+fasolka szparagowa|fasolka szparagowa,fasolka,fasolki
+fasola|fasola,fasoli
+fasola czerwona>fasola|fasola czerwona,czerwona fasola,fasola kidney
+fasola biała>fasola|fasola biała,biała fasola,fasola jaś
+ciecierzyca|ciecierzyca,ciecierzycy,cieciorka
+soczewica|soczewica,soczewicy,czerwona soczewica
+groch łuskany|groch łuskany,groch,grochu
+kukurydza|kukurydza,kukurydzy,kukurydza z puszki
+dynia|dynia,dyni
+buraki|buraki,burak,buraczki,buraków
+rzodkiewka|rzodkiewka,rzodkiewki,rzodkiewek
+awokado|awokado
+oliwki|oliwki,oliwek
+cytryna|cytryna,cytryny,cytryn
+sok z cytryny>cytryna|sok z cytryny
+jabłka|jabłka,jabłko,jabłek
+banany|banany,banan,bananów
+truskawki|truskawki,truskawka,truskawek
+borówki|borówki,borówka,jagody,borówek
+śliwki|śliwki,śliwka,śliwek
+śliwki suszone|śliwki suszone,suszone śliwki
+rodzynki|rodzynki,rodzynek
+orzechy włoskie|orzechy włoskie,orzechy,orzechów
+pestki dyni|pestki dyni,pestki
+sezam|sezam,sezamu
+tahini|tahini,pasta sezamowa
+mleko kokosowe|mleko kokosowe,mleczko kokosowe
+sos sojowy|sos sojowy,sosu sojowego,soja
+musztarda|musztarda,musztardy
+majonez|majonez,majonezu
+ketchup|ketchup,keczup
+chrzan|chrzan,chrzanu
+zakwas na żurek|zakwas na żurek,zakwas,żur,żurek
+olej|olej,oleju,olej rzepakowy,olej słonecznikowy
+oliwa|oliwa,oliwa z oliwek,oliwy
+sól|sól,soli
+pieprz|pieprz,pieprzu,pieprz czarny
+woda|woda
+bulion|bulion,bulionu,rosół,kostka rosołowa,wywar
+bulion warzywny>bulion|bulion warzywny,wywar warzywny
+imbir|imbir,imbiru
+chili|chili,papryczka chili,papryczki chili,płatki chili
+koperek|koperek,koperku,koper
+natka pietruszki|natka pietruszki,natka,natki,pietruszka natka
+bazylia|bazylia,bazylii
+kolendra|kolendra,kolendry
+tymianek|tymianek
 oregano|oregano
-cinnamon|cynamon
-paprika|papryka słodka,papryka mielona,słodka papryka
-cumin|kmin rzymski,kumin
-curry powder|curry,przyprawa curry
-oats|płatki owsiane,owsianka
-vanilla|wanilia,cukier waniliowy
-walnuts|orzechy włoskie,orzechy
-almonds|migdały
-peanut butter|masło orzechowe
-tofu|tofu
-chicken stock|bulion,rosół,bulion drobiowy
-vegetable stock|bulion warzywny
-white wine|białe wino
-red wine|czerwone wino
-mustard|musztarda
-mayonnaise|majonez
-vinegar|ocet
-beetroot|buraki,burak
-pumpkin|dynia
-water|woda`;
-const DICT=DICT_SRC.split("\n").map(l=>{const[en,pl]=l.split("|");return{en:en.split("/"),pl:pl.split(",").map(s=>s.trim())}});
+majeranek|majeranek,majeranku
+papryka słodka mielona|papryka słodka mielona,papryka mielona,papryka słodka,papryka wędzona
+liść laurowy|liść laurowy,liście laurowe
+ziele angielskie|ziele angielskie
+kminek|kminek
+kmin rzymski|kmin rzymski,kumin
+curry|curry,przyprawa curry,pasta curry
+kurkuma|kurkuma
+cynamon|cynamon,cynamonu
+gałka muszkatołowa|gałka muszkatołowa`;
 
-const QUICK=["jajka","mleko","ser","kurczak","mięso mielone","łosoś","boczek","ryż","makaron","ziemniaki","pomidory","papryka","szpinak","marchew","pieczarki","cytryna","jogurt","ciecierzyca"];
-const EXAMPLE=["kurczak","ziemniaki","szpinak","pomidory","jajka"];
-const STAPLES=["salt","pepper","black pepper","oil","olive oil","vegetable oil","sunflower oil","butter","flour","plain flour","sugar","caster sugar","garlic","garlic clove","onion","onions","stock","chicken stock","vegetable stock","stock cube","water","sea salt"];
-const MEAT=["chicken","beef","pork","lamb","bacon","ham","sausage","mince","turkey","duck","goat","veal","chorizo","prosciutto","salami","pancetta","fish","salmon","tuna","cod","haddock","prawn","shrimp","anchovy","anchovies","mussels","squid","crab","lobster","sardine","mackerel","gelatine","lard","venison","oyster"];
-const ANIMAL=["egg","milk","butter","cheese","cream","yoghurt","yogurt","honey","parmesan","mozzarella","cheddar","feta","ghee","mayonnaise","buttermilk","creme fraiche","custard"];
-const CATS={Beef:"Wołowina",Chicken:"Kurczak",Dessert:"Deser",Lamb:"Jagnięcina",Miscellaneous:"Różne",Pasta:"Makaron",Pork:"Wieprzowina",Seafood:"Owoce morza",Side:"Dodatek",Starter:"Przystawka",Vegan:"Wegańskie",Vegetarian:"Wegetariańskie",Breakfast:"Śniadanie",Goat:"Kozina"};
-const AREAS={American:"Kuchnia amerykańska",British:"Kuchnia brytyjska",Canadian:"Kuchnia kanadyjska",Chinese:"Kuchnia chińska",Croatian:"Kuchnia chorwacka",Dutch:"Kuchnia holenderska",Egyptian:"Kuchnia egipska",Filipino:"Kuchnia filipińska",French:"Kuchnia francuska",Greek:"Kuchnia grecka",Indian:"Kuchnia indyjska",Irish:"Kuchnia irlandzka",Italian:"Kuchnia włoska",Jamaican:"Kuchnia jamajska",Japanese:"Kuchnia japońska",Kenyan:"Kuchnia kenijska",Malaysian:"Kuchnia malezyjska",Mexican:"Kuchnia meksykańska",Moroccan:"Kuchnia marokańska",Polish:"Kuchnia polska",Portuguese:"Kuchnia portugalska",Russian:"Kuchnia rosyjska",Spanish:"Kuchnia hiszpańska",Thai:"Kuchnia tajska",Tunisian:"Kuchnia tunezyjska",Turkish:"Kuchnia turecka",Ukrainian:"Kuchnia ukraińska",Vietnamese:"Kuchnia wietnamska"};
-const UNITS=[[/\btbsp?s?\b|\btablespoons?\b|\btbls?\b/gi,"łyżka"],[/\btsp\b|\bteaspoons?\b/gi,"łyżeczka"],[/\bcups?\b/gi,"szklanka"],[/\bpinch\b/gi,"szczypta"],[/\bhandful\b/gi,"garść"],[/\bcloves?\b/gi,"ząbek"],[/\bto taste\b/gi,"do smaku"],[/\bsliced\b/gi,"w plasterkach"],[/\bchopped\b/gi,"posiekane"],[/\bfinely\b/gi,"drobno"],[/\bdiced\b/gi,"w kostkę"],[/\bgrated\b/gi,"starte"],[/\bminced\b/gi,"posiekane"],[/\blarge\b/gi,"duże"],[/\bsmall\b/gi,"małe"],[/\bmedium\b/gi,"średnie"],[/\bwhole\b/gi,"całe"],[/\bjuice of\b/gi,"sok z"],[/\bcan\b/gi,"puszka"],[/\bsprigs?\b/gi,"gałązka"],[/\bdash\b/gi,"odrobina"],[/\bknob\b/gi,"kawałek"]];
+const STAPLES=new Set(["sól","pieprz","olej","oliwa","masło","mąka","cukier","czosnek","cebula","bulion","bulion warzywny","woda"]);
+const SPICES=new Set(["papryka słodka mielona","majeranek","liść laurowy","ziele angielskie","kminek","kmin rzymski","oregano","tymianek","cynamon","curry","kurkuma","chili","gałka muszkatołowa","proszek do pieczenia","cukier waniliowy","cukier puder"]);
+const QUICK=["jajka","mleko","ser żółty","kurczak","mięso mielone","boczek","kiełbasa","ziemniaki","ryż","makaron","pomidory","papryka","ogórek","marchew","pieczarki","śmietana","twaróg","jabłka"];
+const EXAMPLE=["kurczak","ziemniaki","pieczarki","śmietana","jajka"];
+const TYP={obiad:"obiad",zupa:"zupa",sniadanie:"śniadanie / kolacja",salatka:"sałatka / przekąska",deser:"deser"};
+const DIETA={mieso:"z mięsem",ryba:"z rybą",wege:"wegetariańskie",weganskie:"wegańskie"};
+const SITES=[["Kwestia Smaku","kwestiasmaku.com"],["Ania Gotuje","aniagotuje.pl"],["Kuchnia Lidla","kuchnialidla.pl"],["Przepisy.pl","przepisy.pl"]];
+const PAGE=12;
 
 const $=id=>document.getElementById(id);
-let ings=[], isExample=false, dbIngredients=[], lookupCache=new Map(), filterCache=new Map(), lastResults=[], runId=0;
+const RECIPES=window.PRZEPISY||[];
 
-/* ---------- text matching (English recipe data) ---------- */
-function sing(w){if(w.length>4&&w.endsWith("ies"))return w.slice(0,-3)+"y";if(w.length>4&&w.endsWith("oes"))return w.slice(0,-2);if(w.length>3&&w.endsWith("s")&&!w.endsWith("ss"))return w.slice(0,-1);return w}
-function words(s){return String(s||"").toLowerCase().replace(/[^a-z\s]/g," ").split(/\s+/).filter(Boolean).map(sing)}
-const CHANGERS=["sweet","coconut","peanut","almond","stock","broth","oat","soy","cashew","bouillon"];
-function sameThing(a,b){const A=words(a),B=words(b);if(!A.length||!B.length)return false;
-  if(CHANGERS.some(c=>A.includes(c)!==B.includes(c)))return false;
-  return A.every(w=>B.includes(w))||B.every(w=>A.includes(w))}
-function isStaple(name){const N=words(name);return STAPLES.some(s=>{const S=words(s);return S.every(w=>N.includes(w))&&N.length<=S.length+1})}
-function hasWord(name,list){const W=words(name).join(" ");return list.some(x=>(" "+W+" ").includes(" "+words(x).join(" ")+" "))}
-
-/* ---------- Polish ↔ English ---------- */
-function plNorm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ł/g,"l").replace(/[^a-z0-9%\s]/g," ").replace(/\s+/g," ").trim()}
-function dictFind(input){
-  const n=plNorm(input);if(!n)return null;
-  for(const d of DICT)if(d.pl.some(p=>plNorm(p)===n))return d;
-  // loose match for other word endings: "kurczakiem", "pomidorami", "jajek"
+/* ---------- słownik ---------- */
+function norm(s){return String(s||"").toLowerCase().replace(/ł/g,"l").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9%\s]/g," ").replace(/\s+/g," ").trim()}
+const KEYS=new Map(), FORMS=[];
+SLOWNIK.split("\n").forEach(line=>{
+  const[head,forms]=line.split("|");const[key,parent]=head.split(">");
+  KEYS.set(key,{key,parent:parent||null,forms:forms.split(",").map(f=>f.trim())});
+  forms.split(",").forEach(f=>FORMS.push({n:norm(f),key}));
+});
+function keyOf(text){
+  const n=norm(text);if(!n)return null;
+  const ex=FORMS.find(f=>f.n===n);if(ex)return ex.key;
+  // luźne dopasowanie końcówek: „kurczakiem”, „pomidorami”, „pieczarkach”
   let best=null,bestLen=0;
-  for(const d of DICT)for(const p of d.pl){const q=plNorm(p);if(q.includes(" ")!==n.includes(" "))continue;
-    let k=0;while(k<q.length&&k<n.length&&q[k]===n[k])k++;
-    if(k>=4&&k>=Math.min(q.length,n.length)-3&&k>bestLen){best=d;bestLen=k}}
+  for(const f of FORMS){
+    if(f.n.split(" ").length!==n.split(" ").length)continue;
+    let k=0;while(k<f.n.length&&k<n.length&&f.n[k]===n[k])k++;
+    if(k>=4&&k>=Math.min(f.n.length,n.length)-3&&k>bestLen){best=f.key;bestLen=k}
+  }
   return best;
 }
-function plFor(en){for(const d of DICT)if(d.en.some(e=>words(e).join(" ")===words(en).join(" ")))return d.pl[0];return null}
+const parentOf=k=>(KEYS.get(k)||{}).parent;
+function covers(userKey,recipeKey){return userKey===recipeKey||parentOf(recipeKey)===userKey||parentOf(userKey)===recipeKey}
 
-/* MyMemory translation, cached in the browser */
-let trCache={};try{trCache=JSON.parse(localStorage.getItem("ftp-tr")||"{}")}catch(e){}
-let trQuota=false,trSaveTimer=null;
-function trSave(){clearTimeout(trSaveTimer);trSaveTimer=setTimeout(()=>{try{const k=Object.keys(trCache);if(k.length>3000)k.slice(0,k.length-3000).forEach(x=>delete trCache[x]);localStorage.setItem("ftp-tr",JSON.stringify(trCache))}catch(e){}},500)}
-async function tr(text,pair="en|pl"){
-  text=String(text||"").trim();if(!text)return text;
-  const key=pair+":"+text;if(trCache[key])return trCache[key];
-  if(trQuota)return null;
-  const parts=chunk(text,450);const out=[];
-  for(const p of parts){
-    try{const r=await fetch(TR_API+"?q="+encodeURIComponent(p)+"&langpair="+encodeURIComponent(pair));const d=await r.json();
-      if(d.quotaFinished||d.responseStatus==429){trQuota=true;return null}
-      const t=d&&d.responseData&&d.responseData.translatedText;
-      if(!t||d.responseStatus!=200||/MYMEMORY WARNING|QUERY LENGTH LIMIT/i.test(t))return null;
-      out.push(decodeEntities(t));
-    }catch(e){return null}
-  }
-  const res=out.join(" ");trCache[key]=res;trSave();return res;
-}
-function chunk(t,max){if(t.length<=max)return[t];const s=t.match(/[^.!?]+[.!?]*\s*/g)||[t];const out=[];let cur="";for(const x of s){if((cur+x).length>max&&cur){out.push(cur.trim());cur=""}cur+=x.length>max?x.slice(0,max):x}if(cur.trim())out.push(cur.trim());return out}
-function decodeEntities(s){const t=document.createElement("textarea");t.innerHTML=s;return t.value}
-async function pool(items,n,fn){let i=0;await Promise.all(Array.from({length:Math.min(n,items.length)},async()=>{while(i<items.length){const k=i++;await fn(items[k],k)}}))}
+/* przygotuj przepisy: klucz dla każdego składnika */
+RECIPES.forEach(r=>{r._s=r.s.map(([name,amt])=>({name,amt,key:keyOf(name)||norm(name)}))});
 
-/* ---------- storage ---------- */
-function load(){try{const s=JSON.parse(localStorage.getItem("ftp-ings-pl")||"null");if(Array.isArray(s)){ings=s.filter(x=>x&&x.label);isExample=false;return}}catch(e){}isExample=true;ings=[]}
-function save(){isExample=false;try{localStorage.setItem("ftp-ings-pl",JSON.stringify(ings))}catch(e){}}
-function loadOpts(){try{const o=JSON.parse(localStorage.getItem("ftp-opts")||"{}");for(const k of["meal","diet","sort"])if(o[k])$(k).value=o[k];if(typeof o.staples==="boolean")$("staples").checked=o.staples;if(typeof o.translate==="boolean")$("translate").checked=o.translate}catch(e){}}
-function saveOpts(){try{localStorage.setItem("ftp-opts",JSON.stringify({meal:$("meal").value,diet:$("diet").value,sort:$("sort").value,staples:$("staples").checked,translate:$("translate").checked}))}catch(e){}}
+/* ---------- stan ---------- */
+let ings=[], isExample=false, shown=PAGE;
+function load(){try{const s=JSON.parse(localStorage.getItem("zlnt-ings")||"null");if(Array.isArray(s)){ings=s.filter(x=>typeof x==="string");return}}catch(e){}ings=[...EXAMPLE];isExample=true}
+function save(){isExample=false;try{localStorage.setItem("zlnt-ings",JSON.stringify(ings))}catch(e){}}
+const OPT_IDS=["typ","czas","dieta","sort","staples","spices"];
+function loadOpts(){try{const o=JSON.parse(localStorage.getItem("zlnt-opts")||"{}");OPT_IDS.forEach(id=>{if(!(id in o))return;const e=$(id);if(e.type==="checkbox")e.checked=!!o[id];else e.value=o[id]})}catch(e){}}
+function saveOpts(){const o={};OPT_IDS.forEach(id=>{const e=$(id);o[id]=e.type==="checkbox"?e.checked:e.value});try{localStorage.setItem("zlnt-opts",JSON.stringify(o))}catch(e){}}
 
-/* Polish label → English search terms. Unknown words go through the translator, then fall back to the word as typed. */
-async function resolve(label){
-  const d=dictFind(label);if(d)return d.en;
-  const t=await tr(label,"pl|en");
-  return[(t||label).toLowerCase().replace(/[^a-z\s]/g,"").trim()||label];
-}
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
 
-/* ---------- fridge UI ---------- */
+/* ---------- lodówka ---------- */
+function userKeys(){return ings.map(l=>({label:l,key:keyOf(l)}))}
 function renderChips(){
   $("exNote").hidden=!isExample;
   const c=$("chips");c.textContent="";
-  if(!ings.length){c.append(el("span","empty","Nic jeszcze nie dodano. Wpisz składnik powyżej albo kliknij jeden poniżej."));return}
-  ings.forEach((x,i)=>{const s=el("span","chip");s.append(x.label);
-    const b=el("button",null,"×");b.type="button";b.setAttribute("aria-label","Usuń: "+x.label);
-    b.onclick=()=>{ings.splice(i,1);save();renderChips();renderQuick()};s.append(b);c.append(s)});
+  if(!ings.length){c.append(el("span","empty","Nic jeszcze nie dodano. Wpisz składnik powyżej albo kliknij jeden poniżej."))}
+  let unknown=0;
+  userKeys().forEach(({label,key},i)=>{
+    const s=el("span","chip"+(key?"":" unknown"));s.append(label);if(!key){unknown++;s.title="Nie ma go w przepisach na tej stronie"}
+    const b=el("button",null,"×");b.type="button";b.setAttribute("aria-label","Usuń: "+label);
+    b.onclick=()=>{ings.splice(i,1);save();update()};s.append(b);c.append(s);
+  });
+  $("unknownHint").hidden=!unknown;
 }
-function renderQuick(){const q=$("quick");q.textContent="";QUICK.filter(x=>!ings.some(i=>plNorm(i.label)===plNorm(x))).forEach(x=>{const b=el("button",null,"+ "+x);b.type="button";b.onclick=()=>add(x);q.append(b)})}
-async function add(raw,silent){
-  const labels=raw.split(/[,;\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean).filter(l=>!ings.some(i=>plNorm(i.label)===plNorm(l)));
-  for(const l of labels){const item={label:l,terms:(dictFind(l)||{}).en||null};ings.push(item)}
-  if(!silent)save();renderChips();renderQuick();
-  // fill in translations for words not in the dictionary
-  for(const item of ings.filter(i=>!i.terms)){item.terms=await resolve(item.label);if(!silent)save()}
+function renderQuick(){
+  const have=new Set(userKeys().map(u=>u.key));
+  const q=$("quick");q.textContent="";
+  QUICK.filter(x=>!have.has(keyOf(x))).forEach(x=>{const b=el("button",null,"+ "+x);b.type="button";b.onclick=()=>add(x);q.append(b)});
 }
-$("addForm").addEventListener("submit",e=>{e.preventDefault();const v=$("ingInput").value;if(v.trim()){add(v);$("ingInput").value=""}$("ingInput").focus()});
-$("clearBtn").onclick=()=>{ings=[];save();renderChips();renderQuick();$("list").textContent="";$("count").textContent=""};
-["meal","diet","sort","staples","translate"].forEach(id=>$(id).addEventListener("change",()=>{saveOpts();if(lastResults.length)renderResults()}));
-(function fillDatalist(){const dl=$("ingList");const seen=new Set();DICT.forEach(d=>d.pl.slice(0,2).forEach(p=>{if(!seen.has(p)){seen.add(p);const o=document.createElement("option");o.value=p;dl.append(o)}}))})();
+function add(raw){
+  const have=new Set(userKeys().map(u=>u.key||norm(u.label)));
+  raw.split(/[,;\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean).forEach(l=>{const k=keyOf(l)||norm(l);if(!have.has(k)){ings.push(l);have.add(k)}});
+  save();shown=PAGE;update();
+}
+$("addForm").addEventListener("submit",e=>{e.preventDefault();const v=$("ingInput").value;if(v.trim())add(v);$("ingInput").value="";$("ingInput").focus()});
+$("clearBtn").onclick=()=>{ings=[];save();update()};
+OPT_IDS.forEach(id=>$(id).addEventListener("change",()=>{saveOpts();shown=PAGE;renderResults()}));
+$("moreBtn").onclick=()=>{shown+=PAGE;renderResults()};
+(function fillDatalist(){const dl=$("ingList");KEYS.forEach(v=>{const o=document.createElement("option");o.value=v.key;dl.append(o)})})();
 
-function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
-function setStatus(t,err){const s=$("status");s.textContent=t;s.classList.toggle("err",!!err)}
-
-/* ---------- recipe API ---------- */
-async function getJSON(url){const r=await fetch(url);if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}
-async function loadIngredientList(){try{const d=await getJSON(API+"list.php?i=list");dbIngredients=(d.meals||[]).map(m=>m.strIngredient).filter(Boolean)}catch(e){dbIngredients=[]}}
-function dbNamesFor(term){
-  if(!dbIngredients.length)return[term];
-  const T=words(term);
-  const exact=dbIngredients.filter(n=>words(n).join(" ")===T.join(" "));
-  const wider=dbIngredients.filter(n=>{const N=words(n);return T.every(w=>N.includes(w))&&!exact.includes(n)&&!CHANGERS.some(c=>N.includes(c)&&!T.includes(c))}).sort((a,b)=>a.length-b.length);
-  const out=[...exact,...wider].slice(0,5);
-  return out.length?out:[term];
-}
-async function mealsWith(name){const key=name.toLowerCase();if(filterCache.has(key))return filterCache.get(key);
-  const p=getJSON(API+"filter.php?i="+encodeURIComponent(name.trim().replace(/\s+/g,"_"))).then(d=>d.meals||[]).catch(()=>[]);filterCache.set(key,p);return p}
-async function lookup(id){if(lookupCache.has(id))return lookupCache.get(id);
-  const p=getJSON(API+"lookup.php?i="+id).then(d=>(d.meals||[])[0]||null).catch(()=>null);lookupCache.set(id,p);return p}
-
-/* ---------- search ---------- */
-async function find(){
-  if(!ings.length){setStatus("Najpierw dodaj przynajmniej jeden składnik.",true);return}
-  const my=++runId;
-  $("findBtn").disabled=true;setStatus("Szukam przepisów…");skeletons();
-  try{
-    for(const item of ings)if(!item.terms)item.terms=await resolve(item.label);
-    if(!dbIngredients.length)await loadIngredientList();
-    const hits=new Map();
-    await Promise.all(ings.map(async item=>{
-      const names=[...new Set(item.terms.flatMap(dbNamesFor))].slice(0,8);
-      const lists=await Promise.all(names.map(mealsWith));
-      lists.flat().forEach(m=>{if(!hits.has(m.idMeal))hits.set(m.idMeal,{meal:m,n:new Set()});hits.get(m.idMeal).n.add(item.label)});
-    }));
-    if(my!==runId)return;
-    if(!hits.size){lastResults=[];renderResults();setStatus("");return}
-    const cands=[...hits.values()].sort((a,b)=>b.n.size-a.n.size).slice(0,30);
-    setStatus("Wczytuję przepisy ("+cands.length+")…");
-    const full=await Promise.all(cands.map(c=>lookup(c.meal.idMeal)));
-    if(my!==runId)return;
-    lastResults=full.filter(Boolean).map(toRecipe);
-    renderResults();setStatus("");
-  }catch(e){
-    if(my!==runId)return;
-    $("list").textContent="";setStatus("Nie udało się połączyć z bazą przepisów. Sprawdź internet i spróbuj ponownie.",true);
-  }finally{if(my===runId)$("findBtn").disabled=false}
-}
-function toRecipe(m){
-  const items=[];
-  for(let i=1;i<=20;i++){const n=(m["strIngredient"+i]||"").trim();if(n)items.push({name:n,amount:(m["strMeasure"+i]||"").trim()})}
-  const steps=String(m.strInstructions||"").split(/\r?\n+/).map(s=>s.trim().replace(/^(step\s*)?\d+[.):]\s*/i,"")).filter(s=>s&&!/^step\s*\d+\.?$/i.test(s)&&!/^\d+\.?$/.test(s));
-  return{id:m.idMeal,title:m.strMeal,cat:m.strCategory||"",area:m.strArea||m.strCountry||"",thumb:m.strMealThumb,items,steps,source:m.strSource||"",youtube:m.strYoutube||""};
-}
-function score(r,staples){
+/* ---------- dopasowanie ---------- */
+function score(r,mine,staples,spices){
   const used=new Set();let need=0;
-  const rows=r.items.map(it=>{
-    const mine=ings.find(x=>(x.terms||[]).some(t=>sameThing(t,it.name)));
-    if(mine){used.add(mine.label);return{...it,st:"h"}}
-    if(staples&&isStaple(it.name))return{...it,st:"s"};
+  const rows=r._s.map(it=>{
+    const m=mine.find(u=>u.key&&covers(u.key,it.key));
+    if(m){used.add(m.label);return{...it,st:"h"}}
+    if((staples&&STAPLES.has(it.key))||(spices&&SPICES.has(it.key)))return{...it,st:"s"};
     need++;return{...it,st:"m"};
   });
   return{rows,used:[...used],need};
 }
-function dietOK(r,diet){
-  if(diet==="none")return true;
-  if(r.cat==="Vegan")return true;
-  const meaty=["Beef","Chicken","Lamb","Pork","Seafood","Goat"].includes(r.cat)||r.items.some(i=>hasWord(i.name,MEAT));
-  if(meaty)return false;
-  if(diet==="vegetarian")return true;
-  return !r.items.some(i=>hasWord(i.name,ANIMAL));
-}
-function mealOK(r,meal){const c=r.cat;if(meal==="any")return true;if(meal==="breakfast")return c==="Breakfast";if(meal==="dessert")return c==="Dessert";if(meal==="side")return c==="Side"||c==="Starter";return!["Dessert","Breakfast","Side","Starter"].includes(c)}
+function dietOK(r,d){if(d==="none")return true;if(d==="weganskie")return r.dieta==="weganskie";if(d==="wege")return r.dieta==="wege"||r.dieta==="weganskie";return r.dieta!=="mieso"}
 
-/* ---------- results ---------- */
-function skeletons(){const L=$("list");L.textContent="";for(let i=0;i<3;i++)L.append(el("div","skeleton"))}
+/* ---------- wyniki ---------- */
 function plural(n,one,few,many){if(n===1)return one;const d=n%10,h=n%100;return(d>=2&&d<=4&&!(h>=12&&h<=14))?few:many}
 function renderResults(){
   const L=$("list");L.textContent="";
-  const staples=$("staples").checked,meal=$("meal").value,diet=$("diet").value,sort=$("sort").value;
-  let list=lastResults.filter(r=>mealOK(r,meal)&&dietOK(r,diet)).map(r=>({r,s:score(r,staples)})).filter(x=>x.s.used.length);
-  list.sort(sort==="missing"?(a,b)=>a.s.need-b.s.need||b.s.used.length-a.s.used.length:(a,b)=>b.s.used.length-a.s.used.length||a.s.need-b.s.need);
-  list=list.slice(0,15);
+  const mine=userKeys().filter(u=>u.key);
+  const typ=$("typ").value,czas=+$("czas").value,dieta=$("dieta").value,sort=$("sort").value,staples=$("staples").checked,spices=$("spices").checked;
+  let list=RECIPES.filter(r=>(typ==="any"||r.typ===typ)&&(!czas||r.czas<=czas)&&dietOK(r,dieta))
+    .map(r=>({r,s:score(r,mine,staples,spices)})).filter(x=>x.s.used.length);
+  const cmpUsed=(a,b)=>b.s.used.length-a.s.used.length, cmpNeed=(a,b)=>a.s.need-b.s.need, cmpTime=(a,b)=>a.r.czas-b.r.czas;
+  list.sort(sort==="missing"?(a,b)=>cmpNeed(a,b)||cmpUsed(a,b)||cmpTime(a,b):sort==="time"?(a,b)=>cmpTime(a,b)||cmpNeed(a,b):(a,b)=>cmpUsed(a,b)||cmpNeed(a,b)||cmpTime(a,b));
   $("count").textContent=list.length?list.length+" "+plural(list.length,"przepis","przepisy","przepisów"):"";
+  $("moreBtn").hidden=list.length<=shown;
   if(!list.length){
     const n=el("div","note");
-    n.textContent=lastResults.length?"Żaden przepis nie pasuje do tych filtrów. Spróbuj innego posiłku albo diety.":"Nie znaleziono przepisów z tymi składnikami. Spróbuj prostszych nazw (\"kurczak\" zamiast \"udka z kurczaka zagrodowego\") albo dodaj więcej składników.";
+    n.textContent=!ings.length?"Dodaj składniki, a tutaj pojawią się przepisy."
+      :!mine.length?"Żaden z tych składników nie występuje w moich przepisach. Spróbuj prostszych nazw (np. „kurczak” zamiast „kurczak zagrodowy”) albo skorzystaj z wyszukiwania na polskich stronach poniżej."
+      :"Żaden przepis nie pasuje do tych filtrów. Zmień posiłek, czas albo dietę.";
     L.append(n);return;
   }
-  const doTr=$("translate").checked;
-  const cards=list.map(({r,s},i)=>{const c=card(r,s,i===0);L.append(c.el);return c});
-  if(doTr){
-    pool(cards,4,async c=>{const t=await tr(c.r.title);if(t)c.setTitle(t)});
-    if(cards[0])cards[0].translate();
-  }
+  list.slice(0,shown).forEach(({r,s},i)=>L.append(card(r,s,i===0)));
 }
-function measurePl(a){let s=a;for(const[re,pl]of UNITS)s=s.replace(re,pl);return s}
 function card(r,s,open){
   const d=el("details","recipe");d.open=open;
   const sm=el("summary");
-  const img=el("img","thumb");img.alt="";img.loading="lazy";img.src=r.thumb?r.thumb+"/small":"";img.onerror=()=>{if(img.src!==r.thumb&&r.thumb)img.src=r.thumb};
-  const h=el("div","head");
-  const title=el("h3",null,r.title);const orig=el("div","amt");orig.hidden=true;
-  h.append(title,orig,el("div","meta",[AREAS[r.area]||r.area,CATS[r.cat]||r.cat].filter(Boolean).join(" · ").toUpperCase()));
+  sm.append(el("h3",null,r.n));
+  const meta=el("div","meta");[r.czas+" min",r.porcje+" "+plural(r.porcje,"porcja","porcje","porcji"),r.trud,TYP[r.typ],DIETA[r.dieta]].forEach(t=>meta.append(el("span",null,t)));
+  sm.append(meta);
+  if(r.o)sm.append(el("p","desc",r.o));
   const sc=el("div","score");
-  sc.append(el("span","pill have","Używa "+s.used.length+" "+plural(s.used.length,"twojego składnika","twoich składników","twoich składników")));
-  sc.append(s.need?el("span","pill miss","Brakuje "+s.need):el("span","pill ok","Nic nie trzeba kupować"));
-  h.append(sc,el("div","more","Pokaż przepis ▾"));
-  sm.append(img,h);d.append(sm);
+  sc.append(el("span","pill have","✓ "+s.used.join(", ")));
+  sc.append(s.need?el("span","pill miss","Do kupienia: "+s.need):el("span","pill have","Nic nie trzeba kupować"));
+  sm.append(sc,el("div","more","Pokaż przepis ▾"));
+  d.append(sm);
   const b=el("div","body");
   const a=el("div");a.append(el("div","label","Składniki"));
-  const ul=el("ul","ings");const nameEls=[];
+  const ul=el("ul","ings");
   s.rows.forEach(it=>{const li=el("li",it.st);li.append(el("span","mk",it.st==="h"?"✓":it.st==="s"?"·":"+"));
-    const t=el("span");if(it.amount)t.append(el("span","amt",measurePl(it.amount)+" "));
-    const nm=el("span",null,plFor(it.name)||it.name);t.append(nm);if(!plFor(it.name))nameEls.push({el:nm,en:it.name});
-    li.append(t);ul.append(li)});
-  a.append(ul);
-  const leg=el("div","amt","✓ masz · podstawowy + do kupienia");leg.style.marginTop="8px";a.append(leg);
-  const m=el("div");const mh=el("div","label","Przygotowanie");m.append(mh);
-  const ol=el("ol","steps");const stepEls=r.steps.map(x=>{const li=el("li",null,x);ol.append(li);return li});m.append(ol);
-  const trNote=el("div","amt");trNote.hidden=true;trNote.style.marginTop="8px";m.append(trNote);
-  b.append(a,m);
-  const links=el("div","links");
-  if(r.youtube){const y=el("a",null,"Obejrzyj wideo ↗");y.href=r.youtube;y.target="_blank";y.rel="noopener";links.append(y)}
-  if(r.source){const y=el("a",null,"Oryginalny przepis ↗");y.href=r.source;y.target="_blank";y.rel="noopener";links.append(y)}
-  if(links.childNodes.length)b.append(links);
-  d.append(b);
-
-  let started=false;
-  async function translate(){
-    if(started||!$("translate").checked)return;started=true;
-    trNote.hidden=false;trNote.textContent="Tłumaczę…";
-    let failed=0;
-    await pool(stepEls,3,async(li,i)=>{const t=await tr(r.steps[i]);if(t)li.textContent=t;else failed++});
-    await pool(nameEls,3,async x=>{const t=await tr(x.en);if(t)x.el.textContent=t.toLowerCase()});
-    if(failed){trNote.textContent=trQuota?"Dzienny limit tłumaczeń wyczerpany — część przepisu jest po angielsku. Spróbuj jutro.":"Części przepisu nie udało się przetłumaczyć.";}
-    else trNote.hidden=true;
-  }
-  d.addEventListener("toggle",()=>{if(d.open)translate()});
-  return{el:d,r,translate,setTitle(t){title.textContent=t;orig.textContent=r.title;orig.hidden=false}};
+    const t=el("span");t.append(it.name);if(it.amt)t.append(" ",el("span","amt",it.amt));li.append(t);ul.append(li)});
+  a.append(ul,el("div","amt legend","✓ masz   · podstawowe   + do kupienia"));
+  const m=el("div");m.append(el("div","label","Przygotowanie"));
+  const ol=el("ol","steps");r.k.forEach(x=>ol.append(el("li",null,x)));m.append(ol);
+  const links=el("div","links");const g=el("a",null,"Zobacz inne wersje tego przepisu ↗");
+  g.href="https://www.google.com/search?q="+encodeURIComponent(r.n+" przepis");g.target="_blank";g.rel="noopener";links.append(g);
+  b.append(a,m,links);d.append(b);
+  return d;
 }
+function renderSites(){
+  const box=$("siteLinks");box.textContent="";
+  const words=ings.slice(0,4);
+  $("sitesText").textContent=words.length?"Przepisy z: "+words.join(", ")+". Otwiera się w nowej karcie.":"Dodaj składniki, żeby wyszukać przepisy na popularnych polskich stronach.";
+  if(!words.length)return;
+  SITES.forEach(([name,host])=>{const a=el("a",null,name+" ↗");a.href="https://www.google.com/search?q="+encodeURIComponent("site:"+host+" przepis "+words.join(" "));a.target="_blank";a.rel="noopener";box.append(a)});
+}
+function update(){renderChips();renderQuick();renderResults();renderSites()}
 
-$("findBtn").onclick=find;
-load();loadOpts();
-if(isExample)add(EXAMPLE.join(","),true);else{renderChips();renderQuick()}
-loadIngredientList().then(()=>{if(ings.length)find()});
+load();loadOpts();update();
 </script>
 </body>
 </html>
