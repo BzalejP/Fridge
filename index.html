@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fridge to Plate</title>
+<meta name="description" content="Tell it what's in your fridge and get recipes that use it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one column — the "fridge" (what you have) on top, matching recipes below. */
+:root{
+  --bg:#eef2f4; --surface:#ffffff; --surface-2:#e3e9ec; --line:#cdd6db;
+  --fg:#16232b; --muted:#5a6a73; --accent:#e8a317; --accent-ink:#2a1c00;
+  --have:#2f7d5b; --have-bg:#dcefe5; --miss:#a8452e; --miss-bg:#f6e1da;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:10px; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#10181d; --surface:#18232a; --surface-2:#1f2c34; --line:#2c3b44;
+  --fg:#e6edf0; --muted:#93a4ad; --accent:#f2b63a; --accent-ink:#241800;
+  --have:#7fd1a8; --have-bg:#173a2b; --miss:#f0a08b; --miss-bg:#3d2019; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--f-body);
+  padding-inline:16px;padding-block:calc(28px + env(safe-area-inset-top,0px)) calc(48px + env(safe-area-inset-bottom,0px))}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(2rem,6vw,3rem);font-weight:800;letter-spacing:-.02em}
+h1 span{color:var(--accent)}
+.lede{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.label{font:500 .72rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+.fridge{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:16px}
+.row-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.linkbtn{border:0;background:none;color:var(--muted);font:inherit;font-size:.85rem;text-decoration:underline;cursor:pointer;padding:0}
+.addrow{display:flex;gap:8px}
+.addrow input{flex:1;min-width:0;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+input:focus-visible,button:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:8px;padding:9px 14px;font-weight:700}
+.btn:hover{border-color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;min-height:38px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--have-bg);color:var(--have);border-radius:999px;padding:5px 6px 5px 12px;font-weight:700;font-size:.92rem}
+.chip button{border:0;background:transparent;color:inherit;width:24px;height:24px;border-radius:50%;line-height:1;font-size:1.05rem}
+.chip button:hover{background:color-mix(in srgb,var(--have) 18%,transparent)}
+.empty{color:var(--muted);font-size:.92rem}
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.quick button{border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:4px 10px;font-size:.85rem}
+.quick button:hover{color:var(--fg);border-color:var(--muted)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.opts label{display:flex;flex-direction:column;gap:4px}
+select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.toggle{display:flex;align-items:flex-start;gap:8px;font-size:.92rem;color:var(--muted)}
+.toggle input{margin-top:4px;accent-color:var(--accent)}
+.go{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.cta{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:12px 20px;font:800 1.02rem var(--f-display)}
+.cta:disabled{opacity:.55;cursor:default}
+.status{color:var(--muted);font-size:.92rem}
+.status.err{color:var(--miss)}
+
+.results{display:flex;flex-direction:column;gap:14px}
+.results-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.results-head h2{font-size:1.5rem}
+.count{font:500 .78rem var(--f-mono);color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:14px}
+.recipe{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.recipe summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;padding:14px}
+.recipe summary::-webkit-details-marker{display:none}
+.thumb{width:96px;height:96px;border-radius:8px;object-fit:cover;background:var(--surface-2)}
+.head{display:flex;flex-direction:column;gap:6px;min-width:0}
+.recipe h3{font-size:1.15rem;font-weight:700}
+.meta{font:500 .76rem var(--f-mono);color:var(--muted);letter-spacing:.03em}
+.score{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.85rem;font-weight:700}
+.pill{padding:2px 9px;border-radius:999px}
+.pill.have{background:var(--have-bg);color:var(--have)}
+.pill.miss{background:var(--miss-bg);color:var(--miss)}
+.pill.ok{background:var(--have-bg);color:var(--have)}
+.more{font-size:.82rem;color:var(--muted);font-weight:700}
+.recipe[open] .more{display:none}
+.body{border-top:1px solid var(--line);padding:16px 18px 20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:24px}
+@media (max-width:620px){.body{grid-template-columns:1fr}}
+.ings{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+.ings li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:6px;font-size:.95rem}
+.ings .mk{font-weight:700}
+.ings li.h .mk{color:var(--have)}
+.ings li.m .mk{color:var(--miss)}
+.ings li.s .mk{color:var(--muted)}
+.amt{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.steps{margin:8px 0 0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+.links{grid-column:1/-1;display:flex;gap:14px;flex-wrap:wrap;font-size:.9rem;font-weight:700}
+.skeleton{height:126px;border-radius:var(--r);background:linear-gradient(90deg,var(--surface) 0%,var(--surface-2) 50%,var(--surface) 100%);background-size:200% 100%;animation:sh 1.4s infinite linear;border:1px solid var(--line)}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skeleton{animation:none}}
+.note{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:18px;color:var(--muted)}
+footer{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Fridge to <span>Plate</span></h1>
+    <p class="lede">Add what's in your fridge and cupboards. You'll get recipes ranked by how much of it they use, with anything you'd still need to buy flagged.</p>
+  </header>
+
+  <section class="fridge" aria-labelledby="fridge-h">
+    <div class="row-head">
+      <div class="label" id="fridge-h">In my fridge <span id="exNote">(example — replace with yours)</span></div>
+      <button class="linkbtn" id="clearBtn" type="button">Clear all</button>
+    </div>
+    <form class="addrow" id="addForm">
+      <input id="ingInput" type="text" list="ingList" autocomplete="off" placeholder="e.g. chicken, leek, feta" aria-label="Add an ingredient">
+      <datalist id="ingList"></datalist>
+      <button class="btn" type="submit">Add</button>
+    </form>
+    <div class="chips" id="chips" aria-live="polite"></div>
+    <div>
+      <div class="label">Quick add</div>
+      <div class="quick" id="quick"></div>
+    </div>
+    <div class="opts">
+      <label><span class="label">Meal</span>
+        <select id="meal">
+          <option value="any">Anything</option>
+          <option value="main" selected>Main meals</option>
+          <option value="breakfast">Breakfast</option>
+          <option value="side">Sides &amp; starters</option>
+          <option value="dessert">Desserts</option>
+        </select></label>
+      <label><span class="label">Diet</span>
+        <select id="diet">
+          <option value="none">No restriction</option>
+          <option value="vegetarian">Vegetarian</option>
+          <option value="vegan">Vegan</option>
+        </select></label>
+      <label><span class="label">Sort by</span>
+        <select id="sort">
+          <option value="used">Uses most of my food</option>
+          <option value="missing">Fewest things to buy</option>
+        </select></label>
+    </div>
+    <label class="toggle"><input type="checkbox" id="staples" checked> I have basic staples (salt, pepper, oil, butter, flour, sugar, garlic, onion, stock, water)</label>
+    <div class="go">
+      <button class="cta" id="findBtn" type="button">Find recipes</button>
+      <span class="status" id="status" role="status"></span>
+    </div>
+  </section>
+
+  <section class="results" aria-labelledby="res-h">
+    <div class="results-head">
+      <h2 id="res-h">What you can make</h2>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <footer>Recipes and photos from <a href="https://www.themealdb.com" target="_blank" rel="noopener">TheMealDB</a>. Vegetarian and vegan filtering is based on recipe category and ingredients, so double-check if it matters.</footer>
+</div>
+
+<script>
+const API="https://www.themealdb.com/api/json/v1/1/";
+const QUICK=["eggs","milk","cheddar","chicken","minced beef","salmon","bacon","rice","pasta","potatoes","tomatoes","peppers","spinach","carrots","mushrooms","lemon","yoghurt","chickpeas"];
+const EXAMPLE=["chicken","potatoes","spinach","tomatoes","eggs"];
+const STAPLES=["salt","pepper","black pepper","oil","olive oil","vegetable oil","sunflower oil","butter","flour","plain flour","sugar","caster sugar","garlic","garlic clove","onion","onions","stock","chicken stock","vegetable stock","stock cube","water","sea salt"];
+const MEAT=["chicken","beef","pork","lamb","bacon","ham","sausage","mince","turkey","duck","goat","veal","chorizo","prosciutto","salami","pancetta","fish","salmon","tuna","cod","haddock","prawn","shrimp","anchovy","anchovies","mussels","squid","crab","lobster","sardine","mackerel","gelatine","lard","venison","oyster"];
+const ANIMAL=["egg","milk","butter","cheese","cream","yoghurt","yogurt","honey","parmesan","mozzarella","cheddar","feta","ghee","mayonnaise","buttermilk","creme fraiche","custard"];
+
+const $=id=>document.getElementById(id);
+let ings=[], isExample=false, dbIngredients=[], lookupCache=new Map(), filterCache=new Map(), lastResults=[], runId=0;
+
+/* ---------- text matching ---------- */
+function sing(w){if(w.length>4&&w.endsWith("ies"))return w.slice(0,-3)+"y";if(w.length>4&&w.endsWith("oes"))return w.slice(0,-2);if(w.length>3&&w.endsWith("s")&&!w.endsWith("ss"))return w.slice(0,-1);return w}
+function words(s){return String(s||"").toLowerCase().replace(/[^a-z\s]/g," ").split(/\s+/).filter(Boolean).map(sing)}
+/* words that turn one ingredient into a different one: "sweet potato" isn't "potato", "coconut milk" isn't "milk" */
+const CHANGERS=["sweet","coconut","peanut","almond","stock","broth","oat","soy","cashew","bouillon"];
+function sameThing(a,b){const A=words(a),B=words(b);if(!A.length||!B.length)return false;
+  if(CHANGERS.some(c=>A.includes(c)!==B.includes(c)))return false;
+  return A.every(w=>B.includes(w))||B.every(w=>A.includes(w))}
+function isStaple(name){const N=words(name);return STAPLES.some(s=>{const S=words(s);return S.every(w=>N.includes(w))&&N.length<=S.length+1})}
+function hasWord(name,list){const W=words(name).join(" ");return list.some(x=>(" "+W+" ").includes(" "+words(x).join(" ")+" "))}
+
+/* ---------- storage ---------- */
+function load(){try{const s=JSON.parse(localStorage.getItem("ftp-ings")||"null");if(Array.isArray(s)){ings=s;isExample=false;return}}catch(e){} ings=[...EXAMPLE];isExample=true}
+function save(){isExample=false;try{localStorage.setItem("ftp-ings",JSON.stringify(ings))}catch(e){}}
+function loadOpts(){try{const o=JSON.parse(localStorage.getItem("ftp-opts")||"{}");for(const k of["meal","diet","sort"])if(o[k])$(k).value=o[k];if(typeof o.staples==="boolean")$("staples").checked=o.staples}catch(e){}}
+function saveOpts(){try{localStorage.setItem("ftp-opts",JSON.stringify({meal:$("meal").value,diet:$("diet").value,sort:$("sort").value,staples:$("staples").checked}))}catch(e){}}
+
+/* ---------- fridge UI ---------- */
+function renderChips(){
+  $("exNote").hidden=!isExample;
+  const c=$("chips");c.textContent="";
+  if(!ings.length){c.append(el("span","empty","Nothing added yet. Type an ingredient above or tap one below."));return}
+  ings.forEach((x,i)=>{const s=el("span","chip");s.append(x);
+    const b=el("button",null,"×");b.type="button";b.setAttribute("aria-label","Remove "+x);
+    b.onclick=()=>{ings.splice(i,1);save();renderChips();renderQuick()};s.append(b);c.append(s)});
+}
+function renderQuick(){const q=$("quick");q.textContent="";QUICK.filter(x=>!ings.some(i=>sameThing(i,x))).forEach(x=>{const b=el("button",null,"+ "+x);b.type="button";b.onclick=()=>add(x);q.append(b)})}
+function add(raw){raw.split(/[,;\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean).forEach(x=>{if(!ings.includes(x))ings.push(x)});save();renderChips();renderQuick()}
+$("addForm").addEventListener("submit",e=>{e.preventDefault();const v=$("ingInput").value;if(v.trim()){add(v);$("ingInput").value=""}$("ingInput").focus()});
+$("clearBtn").onclick=()=>{ings=[];save();renderChips();renderQuick();$("list").textContent="";$("count").textContent=""};
+["meal","diet","sort","staples"].forEach(id=>$(id).addEventListener("change",()=>{saveOpts();if(lastResults.length)renderResults()}));
+
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function setStatus(t,err){const s=$("status");s.textContent=t;s.classList.toggle("err",!!err)}
+
+/* ---------- API ---------- */
+async function getJSON(url){const r=await fetch(url);if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}
+async function loadIngredientList(){
+  try{const d=await getJSON(API+"list.php?i=list");dbIngredients=(d.meals||[]).map(m=>m.strIngredient).filter(Boolean);
+    const dl=$("ingList");dbIngredients.slice().sort().forEach(n=>{const o=document.createElement("option");o.value=n.toLowerCase();dl.append(o)})}catch(e){dbIngredients=[]}
+}
+/* Turn "chicken" into the database's own names: Chicken, Chicken Breast, Chicken Thighs… */
+function dbNamesFor(term){
+  if(!dbIngredients.length)return[term];
+  const T=words(term);
+  const exact=dbIngredients.filter(n=>words(n).join(" ")===T.join(" "));
+  const wider=dbIngredients.filter(n=>{const N=words(n);return T.every(w=>N.includes(w))&&!exact.includes(n)}).sort((a,b)=>a.length-b.length);
+  const out=[...exact,...wider].slice(0,5);
+  return out.length?out:[term];
+}
+async function mealsWith(name){
+  const key=name.toLowerCase();
+  if(filterCache.has(key))return filterCache.get(key);
+  const p=getJSON(API+"filter.php?i="+encodeURIComponent(name.trim().replace(/\s+/g,"_"))).then(d=>d.meals||[]).catch(()=>[]);
+  filterCache.set(key,p);return p;
+}
+async function lookup(id){
+  if(lookupCache.has(id))return lookupCache.get(id);
+  const p=getJSON(API+"lookup.php?i="+id).then(d=>(d.meals||[])[0]||null).catch(()=>null);
+  lookupCache.set(id,p);return p;
+}
+
+/* ---------- search ---------- */
+async function find(){
+  if(!ings.length){setStatus("Add at least one ingredient first.",true);return}
+  const my=++runId;
+  $("findBtn").disabled=true;setStatus("Searching recipes…");skeletons();
+  try{
+    if(!dbIngredients.length)await loadIngredientList();
+    // which of my ingredients each meal contains
+    const hits=new Map(); // idMeal -> {meal, terms:Set}
+    await Promise.all(ings.map(async term=>{
+      const lists=await Promise.all(dbNamesFor(term).map(mealsWith));
+      lists.flat().forEach(m=>{if(!hits.has(m.idMeal))hits.set(m.idMeal,{meal:m,terms:new Set()});hits.get(m.idMeal).terms.add(term)});
+    }));
+    if(my!==runId)return;
+    if(!hits.size){lastResults=[];renderResults();setStatus("");return}
+    // fetch full details for the strongest candidates
+    const cands=[...hits.values()].sort((a,b)=>b.terms.size-a.terms.size).slice(0,30);
+    setStatus("Loading "+cands.length+" recipes…");
+    const full=await Promise.all(cands.map(c=>lookup(c.meal.idMeal)));
+    if(my!==runId)return;
+    lastResults=full.filter(Boolean).map(toRecipe);
+    renderResults();setStatus("");
+  }catch(e){
+    if(my!==runId)return;
+    $("list").textContent="";setStatus("Couldn't reach the recipe database. Check your connection and try again.",true);
+  }finally{if(my===runId)$("findBtn").disabled=false}
+}
+function toRecipe(m){
+  const items=[];
+  for(let i=1;i<=20;i++){const n=(m["strIngredient"+i]||"").trim();if(n)items.push({name:n,amount:(m["strMeasure"+i]||"").trim()})}
+  const steps=String(m.strInstructions||"").split(/\r?\n+/).map(s=>s.trim()).filter(s=>s&&!/^step\s*\d+\.?$/i.test(s)&&!/^\d+\.?$/.test(s));
+  return{id:m.idMeal,title:m.strMeal,cat:m.strCategory||"",area:m.strArea||m.strCountry||"",thumb:m.strMealThumb,
+    items,steps,source:m.strSource||"",youtube:m.strYoutube||""};
+}
+function score(r,staples){
+  const used=new Set();let need=0;
+  const rows=r.items.map(it=>{
+    const mine=ings.find(x=>sameThing(x,it.name));
+    if(mine){used.add(mine);return{...it,st:"h"}}
+    if(staples&&isStaple(it.name))return{...it,st:"s"};
+    need++;return{...it,st:"m"};
+  });
+  return{rows,used:[...used],need};
+}
+function dietOK(r,diet){
+  if(diet==="none")return true;
+  if(r.cat==="Vegan")return true;
+  const meaty=["Beef","Chicken","Lamb","Pork","Seafood","Goat"].includes(r.cat)||r.items.some(i=>hasWord(i.name,MEAT));
+  if(meaty)return false;
+  if(diet==="vegetarian")return true;
+  return !r.items.some(i=>hasWord(i.name,ANIMAL));
+}
+function mealOK(r,meal){
+  const c=r.cat;
+  if(meal==="any")return true;
+  if(meal==="breakfast")return c==="Breakfast";
+  if(meal==="dessert")return c==="Dessert";
+  if(meal==="side")return c==="Side"||c==="Starter";
+  return !["Dessert","Breakfast","Side","Starter"].includes(c);
+}
+
+/* ---------- results ---------- */
+function skeletons(){const L=$("list");L.textContent="";for(let i=0;i<3;i++)L.append(el("div","skeleton"))}
+function renderResults(){
+  const L=$("list");L.textContent="";
+  const staples=$("staples").checked,meal=$("meal").value,diet=$("diet").value,sort=$("sort").value;
+  let list=lastResults.filter(r=>mealOK(r,meal)&&dietOK(r,diet)).map(r=>({r,s:score(r,staples)})).filter(x=>x.s.used.length);
+  list.sort(sort==="missing"
+    ?(a,b)=>a.s.need-b.s.need||b.s.used.length-a.s.used.length
+    :(a,b)=>b.s.used.length-a.s.used.length||a.s.need-b.s.need);
+  list=list.slice(0,15);
+  $("count").textContent=list.length?list.length+" recipe"+(list.length>1?"s":""):"";
+  if(!list.length){
+    const n=el("div","note");
+    n.textContent=lastResults.length
+      ?"No recipes match those filters. Try a different meal type or diet."
+      :"No recipes found with those ingredients. Try simpler names (\"chicken\" instead of \"free-range chicken thighs\") or add a few more.";
+    L.append(n);return;
+  }
+  list.forEach(({r,s},i)=>L.append(card(r,s,i===0)));
+}
+function card(r,s,open){
+  const d=el("details","recipe");d.open=open;
+  const sm=el("summary");
+  const img=el("img","thumb");img.alt="";img.loading="lazy";img.src=r.thumb?r.thumb+"/small":"";img.onerror=()=>{if(img.src!==r.thumb&&r.thumb)img.src=r.thumb};
+  const h=el("div","head");
+  h.append(el("h3",null,r.title),el("div","meta",[r.area,r.cat].filter(Boolean).join(" · ").toUpperCase()));
+  const sc=el("div","score");
+  sc.append(el("span","pill have","Uses "+s.used.length+" of yours"));
+  sc.append(s.need?el("span","pill miss","Need "+s.need+" more"):el("span","pill ok","Nothing to buy"));
+  h.append(sc,el("div","more","Show recipe ▾"));
+  sm.append(img,h);d.append(sm);
+  const b=el("div","body");
+  const a=el("div");a.append(el("div","label","Ingredients"));
+  const ul=el("ul","ings");
+  s.rows.forEach(it=>{const li=el("li",it.st);li.append(el("span","mk",it.st==="h"?"✓":it.st==="s"?"·":"+"));
+    const t=el("span");if(it.amount){t.append(el("span","amt",it.amount+" "))}t.append(it.name);li.append(t);ul.append(li)});
+  a.append(ul);
+  const leg=el("div","amt","✓ you have · staple + to buy");leg.style.marginTop="8px";a.append(leg);
+  const m=el("div");m.append(el("div","label","Method"));const ol=el("ol","steps");r.steps.forEach(x=>ol.append(el("li",null,x.replace(/^(step\s*)?\d+[.):]\s*/i,""))));m.append(ol);
+  b.append(a,m);
+  const links=el("div","links");
+  if(r.youtube){const y=el("a",null,"Watch the video ↗");y.href=r.youtube;y.target="_blank";y.rel="noopener";links.append(y)}
+  if(r.source){const y=el("a",null,"Original recipe ↗");y.href=r.source;y.target="_blank";y.rel="noopener";links.append(y)}
+  if(links.childNodes.length)b.append(links);
+  d.append(b);return d;
+}
+
+$("findBtn").onclick=find;
+load();loadOpts();renderChips();renderQuick();
+loadIngredientList().then(()=>{if(ings.length)find()});
+</script>
+</body>
+</html>
