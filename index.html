@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="pl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Fridge to Plate</title>
-<meta name="description" content="Tell it what's in your fridge and get recipes that use it.">
+<title>Z lodówki na talerz</title>
+<meta name="description" content="Wpisz, co masz w lodówce, i znajdź przepisy, które to wykorzystują.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&subset=latin-ext&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
 /* Layout: one column — the "fridge" (what you have) on top, matching recipes below. */
 :root{
@@ -105,79 +105,203 @@ footer{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padd
 <body>
 <div class="wrap">
   <header>
-    <h1>Fridge to <span>Plate</span></h1>
-    <p class="lede">Add what's in your fridge and cupboards. You'll get recipes ranked by how much of it they use, with anything you'd still need to buy flagged.</p>
+    <h1>Z lodówki <span>na talerz</span></h1>
+    <p class="lede">Dodaj to, co masz w lodówce i szafkach. Dostaniesz przepisy, które wykorzystują jak najwięcej z tego, a brakujące składniki zostaną zaznaczone.</p>
   </header>
 
   <section class="fridge" aria-labelledby="fridge-h">
     <div class="row-head">
-      <div class="label" id="fridge-h">In my fridge <span id="exNote">(example — replace with yours)</span></div>
-      <button class="linkbtn" id="clearBtn" type="button">Clear all</button>
+      <div class="label" id="fridge-h">W mojej lodówce <span id="exNote">(przykład — zamień na swoje)</span></div>
+      <button class="linkbtn" id="clearBtn" type="button">Wyczyść wszystko</button>
     </div>
     <form class="addrow" id="addForm">
-      <input id="ingInput" type="text" list="ingList" autocomplete="off" placeholder="e.g. chicken, leek, feta" aria-label="Add an ingredient">
+      <input id="ingInput" type="text" list="ingList" autocomplete="off" placeholder="np. kurczak, por, feta" aria-label="Dodaj składnik">
       <datalist id="ingList"></datalist>
-      <button class="btn" type="submit">Add</button>
+      <button class="btn" type="submit">Dodaj</button>
     </form>
     <div class="chips" id="chips" aria-live="polite"></div>
     <div>
-      <div class="label">Quick add</div>
+      <div class="label">Szybkie dodawanie</div>
       <div class="quick" id="quick"></div>
     </div>
     <div class="opts">
-      <label><span class="label">Meal</span>
+      <label><span class="label">Posiłek</span>
         <select id="meal">
-          <option value="any">Anything</option>
-          <option value="main" selected>Main meals</option>
-          <option value="breakfast">Breakfast</option>
-          <option value="side">Sides &amp; starters</option>
-          <option value="dessert">Desserts</option>
+          <option value="any">Cokolwiek</option>
+          <option value="main" selected>Dania główne</option>
+          <option value="breakfast">Śniadanie</option>
+          <option value="side">Dodatki i przystawki</option>
+          <option value="dessert">Desery</option>
         </select></label>
-      <label><span class="label">Diet</span>
+      <label><span class="label">Dieta</span>
         <select id="diet">
-          <option value="none">No restriction</option>
-          <option value="vegetarian">Vegetarian</option>
-          <option value="vegan">Vegan</option>
+          <option value="none">Bez ograniczeń</option>
+          <option value="vegetarian">Wegetariańska</option>
+          <option value="vegan">Wegańska</option>
         </select></label>
-      <label><span class="label">Sort by</span>
+      <label><span class="label">Sortuj</span>
         <select id="sort">
-          <option value="used">Uses most of my food</option>
-          <option value="missing">Fewest things to buy</option>
+          <option value="used">Najwięcej moich składników</option>
+          <option value="missing">Najmniej do kupienia</option>
         </select></label>
     </div>
-    <label class="toggle"><input type="checkbox" id="staples" checked> I have basic staples (salt, pepper, oil, butter, flour, sugar, garlic, onion, stock, water)</label>
+    <label class="toggle"><input type="checkbox" id="staples" checked> Mam podstawowe produkty (sól, pieprz, olej, masło, mąka, cukier, czosnek, cebula, bulion, woda)</label>
+    <label class="toggle"><input type="checkbox" id="translate" checked> Tłumacz przepisy na polski (automatycznie, przez internet)</label>
     <div class="go">
-      <button class="cta" id="findBtn" type="button">Find recipes</button>
+      <button class="cta" id="findBtn" type="button">Znajdź przepisy</button>
       <span class="status" id="status" role="status"></span>
     </div>
   </section>
 
   <section class="results" aria-labelledby="res-h">
     <div class="results-head">
-      <h2 id="res-h">What you can make</h2>
+      <h2 id="res-h">Co możesz ugotować</h2>
       <span class="count" id="count"></span>
     </div>
     <div class="list" id="list"></div>
   </section>
 
-  <footer>Recipes and photos from <a href="https://www.themealdb.com" target="_blank" rel="noopener">TheMealDB</a>. Vegetarian and vegan filtering is based on recipe category and ingredients, so double-check if it matters.</footer>
+  <footer>Przepisy i zdjęcia pochodzą z <a href="https://www.themealdb.com" target="_blank" rel="noopener">TheMealDB</a> (po angielsku), a tłumaczenia z <a href="https://mymemory.translated.net" target="_blank" rel="noopener">MyMemory</a>. Tłumaczenie jest automatyczne i ma dzienny limit, więc czasem część tekstu zostanie po angielsku. Filtr wegetariański i wegański opiera się na kategorii i składnikach przepisu — sprawdź, jeśli to ważne.</footer>
 </div>
 
 <script>
 const API="https://www.themealdb.com/api/json/v1/1/";
-const QUICK=["eggs","milk","cheddar","chicken","minced beef","salmon","bacon","rice","pasta","potatoes","tomatoes","peppers","spinach","carrots","mushrooms","lemon","yoghurt","chickpeas"];
-const EXAMPLE=["chicken","potatoes","spinach","tomatoes","eggs"];
+const TR_API="https://api.mymemory.translated.net/get";
+
+/* Polish → English ingredient dictionary. Format: english name(s) separated by "/" | Polish forms (first one is shown). */
+const DICT_SRC=`chicken|kurczak,kurczaka,kurczaki,kurczakiem,mięso z kurczaka,kurczę
+chicken breast|pierś z kurczaka,piersi z kurczaka,filet z kurczaka,filety z kurczaka,pierś kurczaka,piersi kurczaka
+chicken thighs|udka z kurczaka,udko z kurczaka,udka kurczaka,podudzia,podudzie
+beef|wołowina,wołowiny
+minced beef|mięso mielone,mielone,mielona wołowina,wołowina mielona,mielone mięso
+pork|wieprzowina,wieprzowiny,schab,karkówka
+lamb|jagnięcina,baranina
+bacon|boczek,bekon
+ham|szynka,szynki
+sausages|kiełbasa,kiełbaski,kiełbasy,parówki,parówka
+chorizo|chorizo
+turkey|indyk,indyka
+duck|kaczka,kaczki
+salmon|łosoś,łososia
+tuna|tuńczyk,tuńczyka
+cod|dorsz,dorsza
+prawns/king prawns|krewetki,krewetka
+white fish|ryba,ryby,biała ryba
+eggs|jajka,jajko,jaja,jajo,jajek,jaj
+milk|mleko
+butter|masło
+double cream/heavy cream|śmietanka,śmietana kremówka,kremówka,śmietana 30%
+sour cream|śmietana,kwaśna śmietana,śmietana 18%
+cheese|ser,sery,ser żółty
+cheddar cheese|cheddar,ser cheddar
+parmesan|parmezan
+mozzarella|mozzarella
+feta|feta,ser feta
+cream cheese|serek śmietankowy,ser kremowy,serek kremowy
+greek yogurt|jogurt grecki
+yogurt|jogurt,jogurt naturalny
+rice|ryż
+pasta|makaron
+spaghetti|spaghetti
+noodles|makaron azjatycki,makaron ryżowy,noodle
+bread|chleb,pieczywo,bułka,bułki
+flour|mąka
+potatoes|ziemniaki,ziemniak,kartofle
+sweet potatoes|bataty,batat
+tomatoes|pomidory,pomidor
+cherry tomatoes|pomidorki koktajlowe,pomidorki
+chopped tomatoes|pomidory z puszki,pomidory krojone,pomidory w puszce
+tomato puree|koncentrat pomidorowy,przecier pomidorowy,passata
+onion|cebula,cebule
+red onions|czerwona cebula
+spring onions|dymka,cebulka dymka
+chives|szczypiorek
+garlic|czosnek
+carrots|marchew,marchewka,marchewki
+red pepper/green pepper/yellow pepper|papryka,papryki,papryka czerwona,papryka zielona
+cucumber|ogórek,ogórki
+courgettes|cukinia,cukinie
+aubergine|bakłażan,bakłażany,oberżyna
+broccoli|brokuł,brokuły
+cauliflower|kalafior
+cabbage|kapusta
+spinach|szpinak
+lettuce|sałata
+mushrooms|pieczarki,pieczarka,grzyby,grzyb
+peas|groszek,groszek zielony
+green beans|fasolka szparagowa
+kidney beans|fasola,fasola czerwona
+chickpeas|ciecierzyca,cieciorka
+lentils|soczewica
+sweetcorn|kukurydza
+leek|por,pory
+celery|seler,seler naciowy
+avocado|awokado
+lemon|cytryna,cytryny
+lime|limonka,limonki
+apples|jabłka,jabłko
+bananas|banany,banan
+strawberries|truskawki,truskawka
+blueberries|borówki,jagody
+oranges|pomarańcze,pomarańcza
+honey|miód
+sugar|cukier
+brown sugar|cukier trzcinowy,brązowy cukier
+olive oil|oliwa,oliwa z oliwek
+vegetable oil|olej,olej roślinny,olej rzepakowy
+salt|sól
+black pepper|pieprz,pieprz czarny
+soy sauce|sos sojowy
+coconut milk|mleko kokosowe
+chocolate|czekolada
+dark chocolate|gorzka czekolada
+cocoa|kakao
+ginger|imbir
+chilli|chili,papryczka chili,papryczki chili
+basil|bazylia
+parsley|pietruszka,natka pietruszki,natka
+coriander|kolendra
+dill|koperek,koper
+thyme|tymianek
+rosemary|rozmaryn
+oregano|oregano
+cinnamon|cynamon
+paprika|papryka słodka,papryka mielona,słodka papryka
+cumin|kmin rzymski,kumin
+curry powder|curry,przyprawa curry
+oats|płatki owsiane,owsianka
+vanilla|wanilia,cukier waniliowy
+walnuts|orzechy włoskie,orzechy
+almonds|migdały
+peanut butter|masło orzechowe
+tofu|tofu
+chicken stock|bulion,rosół,bulion drobiowy
+vegetable stock|bulion warzywny
+white wine|białe wino
+red wine|czerwone wino
+mustard|musztarda
+mayonnaise|majonez
+vinegar|ocet
+beetroot|buraki,burak
+pumpkin|dynia
+water|woda`;
+const DICT=DICT_SRC.split("\n").map(l=>{const[en,pl]=l.split("|");return{en:en.split("/"),pl:pl.split(",").map(s=>s.trim())}});
+
+const QUICK=["jajka","mleko","ser","kurczak","mięso mielone","łosoś","boczek","ryż","makaron","ziemniaki","pomidory","papryka","szpinak","marchew","pieczarki","cytryna","jogurt","ciecierzyca"];
+const EXAMPLE=["kurczak","ziemniaki","szpinak","pomidory","jajka"];
 const STAPLES=["salt","pepper","black pepper","oil","olive oil","vegetable oil","sunflower oil","butter","flour","plain flour","sugar","caster sugar","garlic","garlic clove","onion","onions","stock","chicken stock","vegetable stock","stock cube","water","sea salt"];
 const MEAT=["chicken","beef","pork","lamb","bacon","ham","sausage","mince","turkey","duck","goat","veal","chorizo","prosciutto","salami","pancetta","fish","salmon","tuna","cod","haddock","prawn","shrimp","anchovy","anchovies","mussels","squid","crab","lobster","sardine","mackerel","gelatine","lard","venison","oyster"];
 const ANIMAL=["egg","milk","butter","cheese","cream","yoghurt","yogurt","honey","parmesan","mozzarella","cheddar","feta","ghee","mayonnaise","buttermilk","creme fraiche","custard"];
+const CATS={Beef:"Wołowina",Chicken:"Kurczak",Dessert:"Deser",Lamb:"Jagnięcina",Miscellaneous:"Różne",Pasta:"Makaron",Pork:"Wieprzowina",Seafood:"Owoce morza",Side:"Dodatek",Starter:"Przystawka",Vegan:"Wegańskie",Vegetarian:"Wegetariańskie",Breakfast:"Śniadanie",Goat:"Kozina"};
+const AREAS={American:"Kuchnia amerykańska",British:"Kuchnia brytyjska",Canadian:"Kuchnia kanadyjska",Chinese:"Kuchnia chińska",Croatian:"Kuchnia chorwacka",Dutch:"Kuchnia holenderska",Egyptian:"Kuchnia egipska",Filipino:"Kuchnia filipińska",French:"Kuchnia francuska",Greek:"Kuchnia grecka",Indian:"Kuchnia indyjska",Irish:"Kuchnia irlandzka",Italian:"Kuchnia włoska",Jamaican:"Kuchnia jamajska",Japanese:"Kuchnia japońska",Kenyan:"Kuchnia kenijska",Malaysian:"Kuchnia malezyjska",Mexican:"Kuchnia meksykańska",Moroccan:"Kuchnia marokańska",Polish:"Kuchnia polska",Portuguese:"Kuchnia portugalska",Russian:"Kuchnia rosyjska",Spanish:"Kuchnia hiszpańska",Thai:"Kuchnia tajska",Tunisian:"Kuchnia tunezyjska",Turkish:"Kuchnia turecka",Ukrainian:"Kuchnia ukraińska",Vietnamese:"Kuchnia wietnamska"};
+const UNITS=[[/\btbsp?s?\b|\btablespoons?\b|\btbls?\b/gi,"łyżka"],[/\btsp\b|\bteaspoons?\b/gi,"łyżeczka"],[/\bcups?\b/gi,"szklanka"],[/\bpinch\b/gi,"szczypta"],[/\bhandful\b/gi,"garść"],[/\bcloves?\b/gi,"ząbek"],[/\bto taste\b/gi,"do smaku"],[/\bsliced\b/gi,"w plasterkach"],[/\bchopped\b/gi,"posiekane"],[/\bfinely\b/gi,"drobno"],[/\bdiced\b/gi,"w kostkę"],[/\bgrated\b/gi,"starte"],[/\bminced\b/gi,"posiekane"],[/\blarge\b/gi,"duże"],[/\bsmall\b/gi,"małe"],[/\bmedium\b/gi,"średnie"],[/\bwhole\b/gi,"całe"],[/\bjuice of\b/gi,"sok z"],[/\bcan\b/gi,"puszka"],[/\bsprigs?\b/gi,"gałązka"],[/\bdash\b/gi,"odrobina"],[/\bknob\b/gi,"kawałek"]];
 
 const $=id=>document.getElementById(id);
 let ings=[], isExample=false, dbIngredients=[], lookupCache=new Map(), filterCache=new Map(), lastResults=[], runId=0;
 
-/* ---------- text matching ---------- */
+/* ---------- text matching (English recipe data) ---------- */
 function sing(w){if(w.length>4&&w.endsWith("ies"))return w.slice(0,-3)+"y";if(w.length>4&&w.endsWith("oes"))return w.slice(0,-2);if(w.length>3&&w.endsWith("s")&&!w.endsWith("ss"))return w.slice(0,-1);return w}
 function words(s){return String(s||"").toLowerCase().replace(/[^a-z\s]/g," ").split(/\s+/).filter(Boolean).map(sing)}
-/* words that turn one ingredient into a different one: "sweet potato" isn't "potato", "coconut milk" isn't "milk" */
 const CHANGERS=["sweet","coconut","peanut","almond","stock","broth","oat","soy","cashew","bouillon"];
 function sameThing(a,b){const A=words(a),B=words(b);if(!A.length||!B.length)return false;
   if(CHANGERS.some(c=>A.includes(c)!==B.includes(c)))return false;
@@ -185,96 +309,135 @@ function sameThing(a,b){const A=words(a),B=words(b);if(!A.length||!B.length)retu
 function isStaple(name){const N=words(name);return STAPLES.some(s=>{const S=words(s);return S.every(w=>N.includes(w))&&N.length<=S.length+1})}
 function hasWord(name,list){const W=words(name).join(" ");return list.some(x=>(" "+W+" ").includes(" "+words(x).join(" ")+" "))}
 
+/* ---------- Polish ↔ English ---------- */
+function plNorm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ł/g,"l").replace(/[^a-z0-9%\s]/g," ").replace(/\s+/g," ").trim()}
+function dictFind(input){
+  const n=plNorm(input);if(!n)return null;
+  for(const d of DICT)if(d.pl.some(p=>plNorm(p)===n))return d;
+  // loose match for other word endings: "kurczakiem", "pomidorami", "jajek"
+  let best=null,bestLen=0;
+  for(const d of DICT)for(const p of d.pl){const q=plNorm(p);if(q.includes(" ")!==n.includes(" "))continue;
+    let k=0;while(k<q.length&&k<n.length&&q[k]===n[k])k++;
+    if(k>=4&&k>=Math.min(q.length,n.length)-3&&k>bestLen){best=d;bestLen=k}}
+  return best;
+}
+function plFor(en){for(const d of DICT)if(d.en.some(e=>words(e).join(" ")===words(en).join(" ")))return d.pl[0];return null}
+
+/* MyMemory translation, cached in the browser */
+let trCache={};try{trCache=JSON.parse(localStorage.getItem("ftp-tr")||"{}")}catch(e){}
+let trQuota=false,trSaveTimer=null;
+function trSave(){clearTimeout(trSaveTimer);trSaveTimer=setTimeout(()=>{try{const k=Object.keys(trCache);if(k.length>3000)k.slice(0,k.length-3000).forEach(x=>delete trCache[x]);localStorage.setItem("ftp-tr",JSON.stringify(trCache))}catch(e){}},500)}
+async function tr(text,pair="en|pl"){
+  text=String(text||"").trim();if(!text)return text;
+  const key=pair+":"+text;if(trCache[key])return trCache[key];
+  if(trQuota)return null;
+  const parts=chunk(text,450);const out=[];
+  for(const p of parts){
+    try{const r=await fetch(TR_API+"?q="+encodeURIComponent(p)+"&langpair="+encodeURIComponent(pair));const d=await r.json();
+      if(d.quotaFinished||d.responseStatus==429){trQuota=true;return null}
+      const t=d&&d.responseData&&d.responseData.translatedText;
+      if(!t||d.responseStatus!=200||/MYMEMORY WARNING|QUERY LENGTH LIMIT/i.test(t))return null;
+      out.push(decodeEntities(t));
+    }catch(e){return null}
+  }
+  const res=out.join(" ");trCache[key]=res;trSave();return res;
+}
+function chunk(t,max){if(t.length<=max)return[t];const s=t.match(/[^.!?]+[.!?]*\s*/g)||[t];const out=[];let cur="";for(const x of s){if((cur+x).length>max&&cur){out.push(cur.trim());cur=""}cur+=x.length>max?x.slice(0,max):x}if(cur.trim())out.push(cur.trim());return out}
+function decodeEntities(s){const t=document.createElement("textarea");t.innerHTML=s;return t.value}
+async function pool(items,n,fn){let i=0;await Promise.all(Array.from({length:Math.min(n,items.length)},async()=>{while(i<items.length){const k=i++;await fn(items[k],k)}}))}
+
 /* ---------- storage ---------- */
-function load(){try{const s=JSON.parse(localStorage.getItem("ftp-ings")||"null");if(Array.isArray(s)){ings=s;isExample=false;return}}catch(e){} ings=[...EXAMPLE];isExample=true}
-function save(){isExample=false;try{localStorage.setItem("ftp-ings",JSON.stringify(ings))}catch(e){}}
-function loadOpts(){try{const o=JSON.parse(localStorage.getItem("ftp-opts")||"{}");for(const k of["meal","diet","sort"])if(o[k])$(k).value=o[k];if(typeof o.staples==="boolean")$("staples").checked=o.staples}catch(e){}}
-function saveOpts(){try{localStorage.setItem("ftp-opts",JSON.stringify({meal:$("meal").value,diet:$("diet").value,sort:$("sort").value,staples:$("staples").checked}))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem("ftp-ings-pl")||"null");if(Array.isArray(s)){ings=s.filter(x=>x&&x.label);isExample=false;return}}catch(e){}isExample=true;ings=[]}
+function save(){isExample=false;try{localStorage.setItem("ftp-ings-pl",JSON.stringify(ings))}catch(e){}}
+function loadOpts(){try{const o=JSON.parse(localStorage.getItem("ftp-opts")||"{}");for(const k of["meal","diet","sort"])if(o[k])$(k).value=o[k];if(typeof o.staples==="boolean")$("staples").checked=o.staples;if(typeof o.translate==="boolean")$("translate").checked=o.translate}catch(e){}}
+function saveOpts(){try{localStorage.setItem("ftp-opts",JSON.stringify({meal:$("meal").value,diet:$("diet").value,sort:$("sort").value,staples:$("staples").checked,translate:$("translate").checked}))}catch(e){}}
+
+/* Polish label → English search terms. Unknown words go through the translator, then fall back to the word as typed. */
+async function resolve(label){
+  const d=dictFind(label);if(d)return d.en;
+  const t=await tr(label,"pl|en");
+  return[(t||label).toLowerCase().replace(/[^a-z\s]/g,"").trim()||label];
+}
 
 /* ---------- fridge UI ---------- */
 function renderChips(){
   $("exNote").hidden=!isExample;
   const c=$("chips");c.textContent="";
-  if(!ings.length){c.append(el("span","empty","Nothing added yet. Type an ingredient above or tap one below."));return}
-  ings.forEach((x,i)=>{const s=el("span","chip");s.append(x);
-    const b=el("button",null,"×");b.type="button";b.setAttribute("aria-label","Remove "+x);
+  if(!ings.length){c.append(el("span","empty","Nic jeszcze nie dodano. Wpisz składnik powyżej albo kliknij jeden poniżej."));return}
+  ings.forEach((x,i)=>{const s=el("span","chip");s.append(x.label);
+    const b=el("button",null,"×");b.type="button";b.setAttribute("aria-label","Usuń: "+x.label);
     b.onclick=()=>{ings.splice(i,1);save();renderChips();renderQuick()};s.append(b);c.append(s)});
 }
-function renderQuick(){const q=$("quick");q.textContent="";QUICK.filter(x=>!ings.some(i=>sameThing(i,x))).forEach(x=>{const b=el("button",null,"+ "+x);b.type="button";b.onclick=()=>add(x);q.append(b)})}
-function add(raw){raw.split(/[,;\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean).forEach(x=>{if(!ings.includes(x))ings.push(x)});save();renderChips();renderQuick()}
+function renderQuick(){const q=$("quick");q.textContent="";QUICK.filter(x=>!ings.some(i=>plNorm(i.label)===plNorm(x))).forEach(x=>{const b=el("button",null,"+ "+x);b.type="button";b.onclick=()=>add(x);q.append(b)})}
+async function add(raw,silent){
+  const labels=raw.split(/[,;\n]/).map(s=>s.trim().toLowerCase()).filter(Boolean).filter(l=>!ings.some(i=>plNorm(i.label)===plNorm(l)));
+  for(const l of labels){const item={label:l,terms:(dictFind(l)||{}).en||null};ings.push(item)}
+  if(!silent)save();renderChips();renderQuick();
+  // fill in translations for words not in the dictionary
+  for(const item of ings.filter(i=>!i.terms)){item.terms=await resolve(item.label);if(!silent)save()}
+}
 $("addForm").addEventListener("submit",e=>{e.preventDefault();const v=$("ingInput").value;if(v.trim()){add(v);$("ingInput").value=""}$("ingInput").focus()});
 $("clearBtn").onclick=()=>{ings=[];save();renderChips();renderQuick();$("list").textContent="";$("count").textContent=""};
-["meal","diet","sort","staples"].forEach(id=>$(id).addEventListener("change",()=>{saveOpts();if(lastResults.length)renderResults()}));
+["meal","diet","sort","staples","translate"].forEach(id=>$(id).addEventListener("change",()=>{saveOpts();if(lastResults.length)renderResults()}));
+(function fillDatalist(){const dl=$("ingList");const seen=new Set();DICT.forEach(d=>d.pl.slice(0,2).forEach(p=>{if(!seen.has(p)){seen.add(p);const o=document.createElement("option");o.value=p;dl.append(o)}}))})();
 
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
 function setStatus(t,err){const s=$("status");s.textContent=t;s.classList.toggle("err",!!err)}
 
-/* ---------- API ---------- */
+/* ---------- recipe API ---------- */
 async function getJSON(url){const r=await fetch(url);if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}
-async function loadIngredientList(){
-  try{const d=await getJSON(API+"list.php?i=list");dbIngredients=(d.meals||[]).map(m=>m.strIngredient).filter(Boolean);
-    const dl=$("ingList");dbIngredients.slice().sort().forEach(n=>{const o=document.createElement("option");o.value=n.toLowerCase();dl.append(o)})}catch(e){dbIngredients=[]}
-}
-/* Turn "chicken" into the database's own names: Chicken, Chicken Breast, Chicken Thighs… */
+async function loadIngredientList(){try{const d=await getJSON(API+"list.php?i=list");dbIngredients=(d.meals||[]).map(m=>m.strIngredient).filter(Boolean)}catch(e){dbIngredients=[]}}
 function dbNamesFor(term){
   if(!dbIngredients.length)return[term];
   const T=words(term);
   const exact=dbIngredients.filter(n=>words(n).join(" ")===T.join(" "));
-  const wider=dbIngredients.filter(n=>{const N=words(n);return T.every(w=>N.includes(w))&&!exact.includes(n)}).sort((a,b)=>a.length-b.length);
+  const wider=dbIngredients.filter(n=>{const N=words(n);return T.every(w=>N.includes(w))&&!exact.includes(n)&&!CHANGERS.some(c=>N.includes(c)&&!T.includes(c))}).sort((a,b)=>a.length-b.length);
   const out=[...exact,...wider].slice(0,5);
   return out.length?out:[term];
 }
-async function mealsWith(name){
-  const key=name.toLowerCase();
-  if(filterCache.has(key))return filterCache.get(key);
-  const p=getJSON(API+"filter.php?i="+encodeURIComponent(name.trim().replace(/\s+/g,"_"))).then(d=>d.meals||[]).catch(()=>[]);
-  filterCache.set(key,p);return p;
-}
-async function lookup(id){
-  if(lookupCache.has(id))return lookupCache.get(id);
-  const p=getJSON(API+"lookup.php?i="+id).then(d=>(d.meals||[])[0]||null).catch(()=>null);
-  lookupCache.set(id,p);return p;
-}
+async function mealsWith(name){const key=name.toLowerCase();if(filterCache.has(key))return filterCache.get(key);
+  const p=getJSON(API+"filter.php?i="+encodeURIComponent(name.trim().replace(/\s+/g,"_"))).then(d=>d.meals||[]).catch(()=>[]);filterCache.set(key,p);return p}
+async function lookup(id){if(lookupCache.has(id))return lookupCache.get(id);
+  const p=getJSON(API+"lookup.php?i="+id).then(d=>(d.meals||[])[0]||null).catch(()=>null);lookupCache.set(id,p);return p}
 
 /* ---------- search ---------- */
 async function find(){
-  if(!ings.length){setStatus("Add at least one ingredient first.",true);return}
+  if(!ings.length){setStatus("Najpierw dodaj przynajmniej jeden składnik.",true);return}
   const my=++runId;
-  $("findBtn").disabled=true;setStatus("Searching recipes…");skeletons();
+  $("findBtn").disabled=true;setStatus("Szukam przepisów…");skeletons();
   try{
+    for(const item of ings)if(!item.terms)item.terms=await resolve(item.label);
     if(!dbIngredients.length)await loadIngredientList();
-    // which of my ingredients each meal contains
-    const hits=new Map(); // idMeal -> {meal, terms:Set}
-    await Promise.all(ings.map(async term=>{
-      const lists=await Promise.all(dbNamesFor(term).map(mealsWith));
-      lists.flat().forEach(m=>{if(!hits.has(m.idMeal))hits.set(m.idMeal,{meal:m,terms:new Set()});hits.get(m.idMeal).terms.add(term)});
+    const hits=new Map();
+    await Promise.all(ings.map(async item=>{
+      const names=[...new Set(item.terms.flatMap(dbNamesFor))].slice(0,8);
+      const lists=await Promise.all(names.map(mealsWith));
+      lists.flat().forEach(m=>{if(!hits.has(m.idMeal))hits.set(m.idMeal,{meal:m,n:new Set()});hits.get(m.idMeal).n.add(item.label)});
     }));
     if(my!==runId)return;
     if(!hits.size){lastResults=[];renderResults();setStatus("");return}
-    // fetch full details for the strongest candidates
-    const cands=[...hits.values()].sort((a,b)=>b.terms.size-a.terms.size).slice(0,30);
-    setStatus("Loading "+cands.length+" recipes…");
+    const cands=[...hits.values()].sort((a,b)=>b.n.size-a.n.size).slice(0,30);
+    setStatus("Wczytuję przepisy ("+cands.length+")…");
     const full=await Promise.all(cands.map(c=>lookup(c.meal.idMeal)));
     if(my!==runId)return;
     lastResults=full.filter(Boolean).map(toRecipe);
     renderResults();setStatus("");
   }catch(e){
     if(my!==runId)return;
-    $("list").textContent="";setStatus("Couldn't reach the recipe database. Check your connection and try again.",true);
+    $("list").textContent="";setStatus("Nie udało się połączyć z bazą przepisów. Sprawdź internet i spróbuj ponownie.",true);
   }finally{if(my===runId)$("findBtn").disabled=false}
 }
 function toRecipe(m){
   const items=[];
   for(let i=1;i<=20;i++){const n=(m["strIngredient"+i]||"").trim();if(n)items.push({name:n,amount:(m["strMeasure"+i]||"").trim()})}
-  const steps=String(m.strInstructions||"").split(/\r?\n+/).map(s=>s.trim()).filter(s=>s&&!/^step\s*\d+\.?$/i.test(s)&&!/^\d+\.?$/.test(s));
-  return{id:m.idMeal,title:m.strMeal,cat:m.strCategory||"",area:m.strArea||m.strCountry||"",thumb:m.strMealThumb,
-    items,steps,source:m.strSource||"",youtube:m.strYoutube||""};
+  const steps=String(m.strInstructions||"").split(/\r?\n+/).map(s=>s.trim().replace(/^(step\s*)?\d+[.):]\s*/i,"")).filter(s=>s&&!/^step\s*\d+\.?$/i.test(s)&&!/^\d+\.?$/.test(s));
+  return{id:m.idMeal,title:m.strMeal,cat:m.strCategory||"",area:m.strArea||m.strCountry||"",thumb:m.strMealThumb,items,steps,source:m.strSource||"",youtube:m.strYoutube||""};
 }
 function score(r,staples){
   const used=new Set();let need=0;
   const rows=r.items.map(it=>{
-    const mine=ings.find(x=>sameThing(x,it.name));
-    if(mine){used.add(mine);return{...it,st:"h"}}
+    const mine=ings.find(x=>(x.terms||[]).some(t=>sameThing(t,it.name)));
+    if(mine){used.add(mine.label);return{...it,st:"h"}}
     if(staples&&isStaple(it.name))return{...it,st:"s"};
     need++;return{...it,st:"m"};
   });
@@ -288,64 +451,79 @@ function dietOK(r,diet){
   if(diet==="vegetarian")return true;
   return !r.items.some(i=>hasWord(i.name,ANIMAL));
 }
-function mealOK(r,meal){
-  const c=r.cat;
-  if(meal==="any")return true;
-  if(meal==="breakfast")return c==="Breakfast";
-  if(meal==="dessert")return c==="Dessert";
-  if(meal==="side")return c==="Side"||c==="Starter";
-  return !["Dessert","Breakfast","Side","Starter"].includes(c);
-}
+function mealOK(r,meal){const c=r.cat;if(meal==="any")return true;if(meal==="breakfast")return c==="Breakfast";if(meal==="dessert")return c==="Dessert";if(meal==="side")return c==="Side"||c==="Starter";return!["Dessert","Breakfast","Side","Starter"].includes(c)}
 
 /* ---------- results ---------- */
 function skeletons(){const L=$("list");L.textContent="";for(let i=0;i<3;i++)L.append(el("div","skeleton"))}
+function plural(n,one,few,many){if(n===1)return one;const d=n%10,h=n%100;return(d>=2&&d<=4&&!(h>=12&&h<=14))?few:many}
 function renderResults(){
   const L=$("list");L.textContent="";
   const staples=$("staples").checked,meal=$("meal").value,diet=$("diet").value,sort=$("sort").value;
   let list=lastResults.filter(r=>mealOK(r,meal)&&dietOK(r,diet)).map(r=>({r,s:score(r,staples)})).filter(x=>x.s.used.length);
-  list.sort(sort==="missing"
-    ?(a,b)=>a.s.need-b.s.need||b.s.used.length-a.s.used.length
-    :(a,b)=>b.s.used.length-a.s.used.length||a.s.need-b.s.need);
+  list.sort(sort==="missing"?(a,b)=>a.s.need-b.s.need||b.s.used.length-a.s.used.length:(a,b)=>b.s.used.length-a.s.used.length||a.s.need-b.s.need);
   list=list.slice(0,15);
-  $("count").textContent=list.length?list.length+" recipe"+(list.length>1?"s":""):"";
+  $("count").textContent=list.length?list.length+" "+plural(list.length,"przepis","przepisy","przepisów"):"";
   if(!list.length){
     const n=el("div","note");
-    n.textContent=lastResults.length
-      ?"No recipes match those filters. Try a different meal type or diet."
-      :"No recipes found with those ingredients. Try simpler names (\"chicken\" instead of \"free-range chicken thighs\") or add a few more.";
+    n.textContent=lastResults.length?"Żaden przepis nie pasuje do tych filtrów. Spróbuj innego posiłku albo diety.":"Nie znaleziono przepisów z tymi składnikami. Spróbuj prostszych nazw (\"kurczak\" zamiast \"udka z kurczaka zagrodowego\") albo dodaj więcej składników.";
     L.append(n);return;
   }
-  list.forEach(({r,s},i)=>L.append(card(r,s,i===0)));
+  const doTr=$("translate").checked;
+  const cards=list.map(({r,s},i)=>{const c=card(r,s,i===0);L.append(c.el);return c});
+  if(doTr){
+    pool(cards,4,async c=>{const t=await tr(c.r.title);if(t)c.setTitle(t)});
+    if(cards[0])cards[0].translate();
+  }
 }
+function measurePl(a){let s=a;for(const[re,pl]of UNITS)s=s.replace(re,pl);return s}
 function card(r,s,open){
   const d=el("details","recipe");d.open=open;
   const sm=el("summary");
   const img=el("img","thumb");img.alt="";img.loading="lazy";img.src=r.thumb?r.thumb+"/small":"";img.onerror=()=>{if(img.src!==r.thumb&&r.thumb)img.src=r.thumb};
   const h=el("div","head");
-  h.append(el("h3",null,r.title),el("div","meta",[r.area,r.cat].filter(Boolean).join(" · ").toUpperCase()));
+  const title=el("h3",null,r.title);const orig=el("div","amt");orig.hidden=true;
+  h.append(title,orig,el("div","meta",[AREAS[r.area]||r.area,CATS[r.cat]||r.cat].filter(Boolean).join(" · ").toUpperCase()));
   const sc=el("div","score");
-  sc.append(el("span","pill have","Uses "+s.used.length+" of yours"));
-  sc.append(s.need?el("span","pill miss","Need "+s.need+" more"):el("span","pill ok","Nothing to buy"));
-  h.append(sc,el("div","more","Show recipe ▾"));
+  sc.append(el("span","pill have","Używa "+s.used.length+" "+plural(s.used.length,"twojego składnika","twoich składników","twoich składników")));
+  sc.append(s.need?el("span","pill miss","Brakuje "+s.need):el("span","pill ok","Nic nie trzeba kupować"));
+  h.append(sc,el("div","more","Pokaż przepis ▾"));
   sm.append(img,h);d.append(sm);
   const b=el("div","body");
-  const a=el("div");a.append(el("div","label","Ingredients"));
-  const ul=el("ul","ings");
+  const a=el("div");a.append(el("div","label","Składniki"));
+  const ul=el("ul","ings");const nameEls=[];
   s.rows.forEach(it=>{const li=el("li",it.st);li.append(el("span","mk",it.st==="h"?"✓":it.st==="s"?"·":"+"));
-    const t=el("span");if(it.amount){t.append(el("span","amt",it.amount+" "))}t.append(it.name);li.append(t);ul.append(li)});
+    const t=el("span");if(it.amount)t.append(el("span","amt",measurePl(it.amount)+" "));
+    const nm=el("span",null,plFor(it.name)||it.name);t.append(nm);if(!plFor(it.name))nameEls.push({el:nm,en:it.name});
+    li.append(t);ul.append(li)});
   a.append(ul);
-  const leg=el("div","amt","✓ you have · staple + to buy");leg.style.marginTop="8px";a.append(leg);
-  const m=el("div");m.append(el("div","label","Method"));const ol=el("ol","steps");r.steps.forEach(x=>ol.append(el("li",null,x.replace(/^(step\s*)?\d+[.):]\s*/i,""))));m.append(ol);
+  const leg=el("div","amt","✓ masz · podstawowy + do kupienia");leg.style.marginTop="8px";a.append(leg);
+  const m=el("div");const mh=el("div","label","Przygotowanie");m.append(mh);
+  const ol=el("ol","steps");const stepEls=r.steps.map(x=>{const li=el("li",null,x);ol.append(li);return li});m.append(ol);
+  const trNote=el("div","amt");trNote.hidden=true;trNote.style.marginTop="8px";m.append(trNote);
   b.append(a,m);
   const links=el("div","links");
-  if(r.youtube){const y=el("a",null,"Watch the video ↗");y.href=r.youtube;y.target="_blank";y.rel="noopener";links.append(y)}
-  if(r.source){const y=el("a",null,"Original recipe ↗");y.href=r.source;y.target="_blank";y.rel="noopener";links.append(y)}
+  if(r.youtube){const y=el("a",null,"Obejrzyj wideo ↗");y.href=r.youtube;y.target="_blank";y.rel="noopener";links.append(y)}
+  if(r.source){const y=el("a",null,"Oryginalny przepis ↗");y.href=r.source;y.target="_blank";y.rel="noopener";links.append(y)}
   if(links.childNodes.length)b.append(links);
-  d.append(b);return d;
+  d.append(b);
+
+  let started=false;
+  async function translate(){
+    if(started||!$("translate").checked)return;started=true;
+    trNote.hidden=false;trNote.textContent="Tłumaczę…";
+    let failed=0;
+    await pool(stepEls,3,async(li,i)=>{const t=await tr(r.steps[i]);if(t)li.textContent=t;else failed++});
+    await pool(nameEls,3,async x=>{const t=await tr(x.en);if(t)x.el.textContent=t.toLowerCase()});
+    if(failed){trNote.textContent=trQuota?"Dzienny limit tłumaczeń wyczerpany — część przepisu jest po angielsku. Spróbuj jutro.":"Części przepisu nie udało się przetłumaczyć.";}
+    else trNote.hidden=true;
+  }
+  d.addEventListener("toggle",()=>{if(d.open)translate()});
+  return{el:d,r,translate,setTitle(t){title.textContent=t;orig.textContent=r.title;orig.hidden=false}};
 }
 
 $("findBtn").onclick=find;
-load();loadOpts();renderChips();renderQuick();
+load();loadOpts();
+if(isExample)add(EXAMPLE.join(","),true);else{renderChips();renderQuick()}
 loadIngredientList().then(()=>{if(ings.length)find()});
 </script>
 </body>
