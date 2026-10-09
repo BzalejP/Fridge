@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* Layout: one column — the "fridge" (what you have) on top, matching recipes below, Polish recipe sites last. */
+/* Layout: one column — header with language flags, the "fridge" (what you have), matching recipes, recipe sites last. */
 :root{
   --bg:#eef2f4; --surface:#ffffff; --surface-2:#e3e9ec; --line:#cdd6db;
   --fg:#16232b; --muted:#5a6a73; --accent:#e8a317; --accent-ink:#2a1c00;
@@ -27,7 +27,7 @@
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--f-body);
-  padding-inline:16px;padding-block:calc(28px + env(safe-area-inset-top,0px)) calc(48px + env(safe-area-inset-bottom,0px))}
+  padding-inline:16px;padding-block:calc(20px + env(safe-area-inset-top,0px)) calc(48px + env(safe-area-inset-bottom,0px))}
 a{color:inherit}
 .wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
 h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
@@ -35,6 +35,13 @@ h1{font-size:clamp(2rem,6vw,3rem);font-weight:800;letter-spacing:-.02em}
 h1 span{color:var(--accent)}
 .lede{color:var(--muted);margin:6px 0 0;max-width:60ch}
 .label{font:500 .72rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+.topbar{display:flex;justify-content:flex-end}
+.langs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
+.langs button{display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;background:transparent;color:var(--muted);border-radius:999px;padding:5px 11px 5px 7px;font:500 .78rem var(--f-mono);letter-spacing:.06em;cursor:pointer}
+.langs button:hover{color:var(--fg)}
+.langs button[aria-pressed="true"]{background:var(--surface-2);border-color:var(--line);color:var(--fg)}
+.langs svg{width:24px;height:16px;border-radius:3px;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
 
 .fridge{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:16px}
 .row-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
@@ -90,7 +97,8 @@ select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:
 .amt{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
 .legend{margin-top:10px}
 .steps{margin:8px 0 0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
-.links{grid-column:1/-1;font-size:.9rem;font-weight:700}
+.links{grid-column:1/-1;font-size:.9rem;font-weight:700;display:flex;flex-direction:column;gap:6px}
+.untr{font-weight:400;color:var(--muted);font-size:.85rem}
 .note{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:18px;color:var(--muted)}
 .showmore{align-self:flex-start}
 
@@ -105,256 +113,383 @@ footer{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padd
 </head>
 <body>
 <div class="wrap">
+  <div class="topbar">
+    <div class="langs" id="langs" role="group" aria-label="Język / Language / Sprog">
+      <button type="button" data-lang="pl" lang="pl" title="Polski">
+        <svg viewBox="0 0 16 10" aria-hidden="true"><rect width="16" height="5" fill="#ffffff"/><rect y="5" width="16" height="5" fill="#dc143c"/></svg>PL</button>
+      <button type="button" data-lang="en" lang="en" title="English">
+        <svg viewBox="0 0 60 30" aria-hidden="true"><clipPath id="ukS"><path d="M0,0v30h60V0z"/></clipPath><clipPath id="ukT"><path d="M30,15h30v15zv15H0zH0V0zV0h30z"/></clipPath><g clip-path="url(#ukS)"><path d="M0,0v30h60V0z" fill="#012169"/><path d="M0,0L60,30M60,0L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0L60,30M60,0L0,30" clip-path="url(#ukT)" stroke="#C8102E" stroke-width="4"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#C8102E" stroke-width="6"/></g></svg>EN</button>
+      <button type="button" data-lang="da" lang="da" title="Dansk">
+        <svg viewBox="0 0 37 28" aria-hidden="true"><rect width="37" height="28" fill="#c8102e"/><rect x="12" width="4" height="28" fill="#ffffff"/><rect y="12" width="37" height="4" fill="#ffffff"/></svg>DA</button>
+    </div>
+  </div>
+
   <header>
-    <h1>Z lodówki <span>na talerz</span></h1>
-    <p class="lede">Dodaj to, co masz w lodówce i szafkach. Przepisy poniżej ułożą się od tych, które wykorzystują najwięcej twoich składników, a brakujące produkty zostaną zaznaczone.</p>
+    <h1><span id="h1a"></span> <span id="h1b"></span></h1>
+    <p class="lede" id="lede"></p>
   </header>
 
   <section class="fridge" aria-labelledby="fridge-h">
     <div class="row-head">
-      <div class="label" id="fridge-h">W mojej lodówce <span id="exNote">(przykład — zamień na swoje)</span></div>
-      <button class="linkbtn" id="clearBtn" type="button">Wyczyść wszystko</button>
+      <div class="label" id="fridge-h"><span id="fridgeLabel"></span> <span id="exNote"></span></div>
+      <button class="linkbtn" id="clearBtn" type="button"></button>
     </div>
     <form class="addrow" id="addForm">
-      <input id="ingInput" type="text" list="ingList" autocomplete="off" placeholder="np. kurczak, ziemniaki, śmietana" aria-label="Dodaj składnik">
+      <input id="ingInput" type="text" list="ingList" autocomplete="off">
       <datalist id="ingList"></datalist>
-      <button class="btn" type="submit">Dodaj</button>
+      <button class="btn" type="submit" id="addBtn"></button>
     </form>
     <div class="chips" id="chips" aria-live="polite"></div>
-    <p class="hint" id="unknownHint" hidden>Składników z przerywaną ramką nie ma w moich przepisach — zostaną użyte w wyszukiwaniu na polskich stronach na dole.</p>
+    <p class="hint" id="unknownHint" hidden></p>
     <div>
-      <div class="label">Szybkie dodawanie</div>
+      <div class="label" id="quickLabel"></div>
       <div class="quick" id="quick"></div>
     </div>
     <div class="opts">
-      <label><span class="label">Posiłek</span>
-        <select id="typ">
-          <option value="any">Cokolwiek</option>
-          <option value="obiad" selected>Obiad</option>
-          <option value="zupa">Zupa</option>
-          <option value="sniadanie">Śniadanie i kolacja</option>
-          <option value="salatka">Sałatki i przekąski</option>
-          <option value="deser">Desery i wypieki</option>
-        </select></label>
-      <label><span class="label">Czas</span>
-        <select id="czas">
-          <option value="0">Bez limitu</option>
-          <option value="20">Do 20 min</option>
-          <option value="30">Do 30 min</option>
-          <option value="45">Do 45 min</option>
-          <option value="60">Do godziny</option>
-        </select></label>
-      <label><span class="label">Dieta</span>
-        <select id="dieta">
-          <option value="none">Bez ograniczeń</option>
-          <option value="wege">Wegetariańska</option>
-          <option value="weganskie">Wegańska</option>
-          <option value="bezmiesa">Bez mięsa (z rybą)</option>
-        </select></label>
-      <label><span class="label">Sortuj</span>
-        <select id="sort">
-          <option value="used">Najwięcej moich składników</option>
-          <option value="missing">Najmniej do kupienia</option>
-          <option value="time">Najszybsze</option>
-        </select></label>
+      <label><span class="label" id="lblTyp"></span><select id="typ"></select></label>
+      <label><span class="label" id="lblCzas"></span><select id="czas"></select></label>
+      <label><span class="label" id="lblDieta"></span><select id="dieta"></select></label>
+      <label><span class="label" id="lblSort"></span><select id="sort"></select></label>
     </div>
     <div class="toggles">
-      <label class="toggle"><input type="checkbox" id="staples" checked> Mam podstawowe produkty: sól, pieprz, olej, oliwa, masło, mąka, cukier, czosnek, cebula, bulion</label>
-      <label class="toggle"><input type="checkbox" id="spices" checked> Mam typowe przyprawy: majeranek, papryka mielona, liść laurowy, ziele angielskie, oregano, cynamon i podobne</label>
+      <label class="toggle"><input type="checkbox" id="staples" checked> <span id="lblStaples"></span></label>
+      <label class="toggle"><input type="checkbox" id="spices" checked> <span id="lblSpices"></span></label>
     </div>
   </section>
 
   <section class="results" aria-labelledby="res-h">
     <div class="results-head">
-      <h2 id="res-h">Co możesz ugotować</h2>
+      <h2 id="res-h"></h2>
       <span class="count" id="count"></span>
     </div>
     <div class="list" id="list"></div>
-    <button class="btn showmore" id="moreBtn" type="button" hidden>Pokaż więcej</button>
+    <button class="btn showmore" id="moreBtn" type="button" hidden></button>
   </section>
 
   <section class="sites" aria-labelledby="sites-h">
-    <h2 id="sites-h">Szukaj dalej na polskich stronach</h2>
-    <p id="sitesText">Otwiera wyszukiwanie przepisów z twoimi składnikami w nowej karcie.</p>
+    <h2 id="sites-h"></h2>
+    <p id="sitesText"></p>
     <div class="site-links" id="siteLinks"></div>
   </section>
 
-  <footer>Przepisy w tej bazie są zapisane w pliku <code>przepisy.js</code> — możesz tam dopisywać własne. Wyszukiwanie na stronach zewnętrznych działa przez Google.</footer>
+  <footer id="footer"></footer>
 </div>
 
 <script src="przepisy.js"></script>
+<script src="przepisy-en.js"></script>
+<script src="przepisy-da.js"></script>
 <script>
-/*
-  Słownik składników: "nazwa>rodzic|odmiany". Nazwa to forma używana w przepisy.js.
-  Rodzic łączy rodzinę produktów: kto ma „kurczaka”, ma też czym zastąpić „pierś z kurczaka” i odwrotnie.
-*/
-const SLOWNIK=`kurczak|kurczak,kurczaka,kurczaki,kurczę,mięso z kurczaka,drób,porcja rosołowa
-pierś z kurczaka>kurczak|pierś z kurczaka,piersi z kurczaka,filet z kurczaka,filety z kurczaka,pierś kurczaka,piersi kurczaka,filet z piersi
-udka z kurczaka>kurczak|udka z kurczaka,udko z kurczaka,udka,udko,podudzia,podudzie,ćwiartki z kurczaka
-wątróbka drobiowa|wątróbka drobiowa,wątróbka,wątróbki,wątroba
-wieprzowina|wieprzowina,wieprzowiny,mięso wieprzowe
-schab>wieprzowina|schab,schabu,kotlety schabowe
-karkówka>wieprzowina|karkówka,karkówki
-łopatka wieprzowa>wieprzowina|łopatka wieprzowa,łopatka,łopatki
-wołowina|wołowina,wołowiny,mięso wołowe,gulaszowe
-mięso mielone|mięso mielone,mielone,mięsa mielonego,mielone mięso,mięso mielone wieprzowe
-wołowina mielona>mięso mielone|wołowina mielona,mielona wołowina,mielone wołowe
-kiełbasa|kiełbasa,kiełbasy,kiełbaski,kiełbaska,parówki,parówka
-biała kiełbasa>kiełbasa|biała kiełbasa,białej kiełbasy
-boczek|boczek,boczku,bekon,boczek wędzony
-szynka|szynka,szynki,szynkę,wędlina
-łosoś|łosoś,łososia,łososie,filet z łososia
-dorsz|dorsz,dorsza,filet z dorsza,ryba,ryby,biała ryba,mintaj,miruna
-tuńczyk|tuńczyk,tuńczyka,tuńczyk z puszki
-krewetki|krewetki,krewetka,krewetek
-śledź|śledź,śledzie,śledzia,matjasy,matjas
-makrela wędzona|makrela wędzona,makrela,makreli,wędzona makrela
-jajka|jajka,jajko,jaja,jajo,jajek,jaj
-mleko|mleko,mleka
-masło|masło,masła
-śmietana|śmietana,śmietany,kwaśna śmietana,śmietana 18%,śmietana 12%
-śmietanka>śmietana|śmietanka,śmietanki,śmietana 30%,kremówka,śmietana kremówka,słodka śmietanka
-jogurt naturalny|jogurt naturalny,jogurt,jogurtu,jogurt grecki
-twaróg|twaróg,twarogu,ser biały,biały ser,twarożek
-ser żółty|ser żółty,ser,sera,żółty ser,gouda,edam,cheddar
-parmezan|parmezan,parmezanu,grana padano
-mozzarella|mozzarella,mozzarelli
-feta|feta,fety,ser feta,ser sałatkowy
-ziemniaki|ziemniaki,ziemniak,ziemniaków,kartofle,kartofel,młode ziemniaki
-ryż|ryż,ryżu,ryż basmati,ryż jaśminowy,arborio
-makaron|makaron,makaronu,penne,świderki,kokardki,nitki,łazanki,tagliatelle
-spaghetti>makaron|spaghetti
-kasza gryczana|kasza gryczana,kaszy gryczanej,gryczana,kasza
-kasza jęczmienna|kasza jęczmienna,pęczak,kasza pęczak,jęczmienna
-płatki owsiane|płatki owsiane,płatków owsianych,owsianka,płatki
-pieczywo|pieczywo,pieczywa
-chleb>pieczywo|chleb,chleba,chleb tostowy,tosty
-bułka>pieczywo|bułka,bułki,bułek,bułeczki,kajzerka
-bagietka>pieczywo|bagietka,bagietki,ciabatta
-bułka tarta|bułka tarta,bułki tartej,panierka
-tortilla|tortilla,tortille,tortilli,wrapy,placki tortilla
-mąka|mąka,mąki,mąka pszenna
-mąka ziemniaczana|mąka ziemniaczana,skrobia
-cukier|cukier,cukru
-cukier puder|cukier puder
-cukier waniliowy|cukier waniliowy,wanilia
-proszek do pieczenia|proszek do pieczenia,proszek
-drożdże|drożdże,drożdży
-kakao|kakao
-czekolada|czekolada,czekolady,mleczna czekolada
-gorzka czekolada>czekolada|gorzka czekolada,ciemna czekolada
-miód|miód,miodu
-pomidory|pomidory,pomidor,pomidorów,świeże pomidory
-pomidorki koktajlowe>pomidory|pomidorki koktajlowe,pomidorki,pomidorki cherry,koktajlowe
-pomidory z puszki>pomidory|pomidory z puszki,pomidory krojone,pomidory w puszce,krojone pomidory,pomidory puszka
-przecier pomidorowy|przecier pomidorowy,passata,przecier,sos pomidorowy
-koncentrat pomidorowy|koncentrat pomidorowy,koncentrat
-cebula|cebula,cebuli,cebule,biała cebula,żółta cebula
-cebula czerwona>cebula|cebula czerwona,czerwona cebula
-cebula dymka|cebula dymka,dymka,cebulka dymka,dymki
-szczypiorek|szczypiorek,szczypiorku,szczypior
-czosnek|czosnek,czosnku,ząbek czosnku
-marchew|marchew,marchewka,marchewki,marchwi,marchewek
-pietruszka|pietruszka,korzeń pietruszki,pietruszki
-seler|seler,selera,seler korzeniowy,seler naciowy
-por|por,pora,pory
-papryka|papryka,papryki,papryk,papryka czerwona,papryka zielona,papryka żółta,czerwona papryka
-ogórek|ogórek,ogórki,ogórków,świeży ogórek,ogórek zielony
-ogórek kiszony|ogórek kiszony,ogórki kiszone,kiszone ogórki,kiszony ogórek,ogórki konserwowe,korniszony
-cukinia|cukinia,cukinie,cukinii
-bakłażan|bakłażan,bakłażany,oberżyna
-brokuł|brokuł,brokuły,brokułu,brokułów
-kalafior|kalafior,kalafiora
-kapusta|kapusta,kapusty,biała kapusta,kapusta biała,kapusta włoska,młoda kapusta
-kapusta kiszona|kapusta kiszona,kiszona kapusta,kapusty kiszonej
-szpinak|szpinak,szpinaku,baby szpinak
-sałata|sałata,sałaty,sałata rzymska,rukola,mix sałat
-pieczarki|pieczarki,pieczarka,pieczarek,grzyby,grzyby świeże,boczniaki
-suszone grzyby|suszone grzyby,grzyby suszone,borowiki suszone
-groszek|groszek,groszku,groszek zielony,groszek mrożony
-fasolka szparagowa|fasolka szparagowa,fasolka,fasolki
-fasola|fasola,fasoli
-fasola czerwona>fasola|fasola czerwona,czerwona fasola,fasola kidney
-fasola biała>fasola|fasola biała,biała fasola,fasola jaś
-ciecierzyca|ciecierzyca,ciecierzycy,cieciorka
-soczewica|soczewica,soczewicy,czerwona soczewica
-groch łuskany|groch łuskany,groch,grochu
-kukurydza|kukurydza,kukurydzy,kukurydza z puszki
-dynia|dynia,dyni
-buraki|buraki,burak,buraczki,buraków
-rzodkiewka|rzodkiewka,rzodkiewki,rzodkiewek
-awokado|awokado
-oliwki|oliwki,oliwek
-cytryna|cytryna,cytryny,cytryn
-sok z cytryny>cytryna|sok z cytryny
-jabłka|jabłka,jabłko,jabłek
-banany|banany,banan,bananów
-truskawki|truskawki,truskawka,truskawek
-borówki|borówki,borówka,jagody,borówek
-śliwki|śliwki,śliwka,śliwek
-śliwki suszone|śliwki suszone,suszone śliwki
-rodzynki|rodzynki,rodzynek
-orzechy włoskie|orzechy włoskie,orzechy,orzechów
-pestki dyni|pestki dyni,pestki
-sezam|sezam,sezamu
-tahini|tahini,pasta sezamowa
-mleko kokosowe|mleko kokosowe,mleczko kokosowe
-sos sojowy|sos sojowy,sosu sojowego,soja
-musztarda|musztarda,musztardy
-majonez|majonez,majonezu
-ketchup|ketchup,keczup
-chrzan|chrzan,chrzanu
-zakwas na żurek|zakwas na żurek,zakwas,żur,żurek
-olej|olej,oleju,olej rzepakowy,olej słonecznikowy
-oliwa|oliwa,oliwa z oliwek,oliwy
-sól|sól,soli
-pieprz|pieprz,pieprzu,pieprz czarny
-woda|woda
-bulion|bulion,bulionu,rosół,kostka rosołowa,wywar
-bulion warzywny>bulion|bulion warzywny,wywar warzywny
-imbir|imbir,imbiru
-chili|chili,papryczka chili,papryczki chili,płatki chili
-koperek|koperek,koperku,koper
-natka pietruszki|natka pietruszki,natka,natki,pietruszka natka
-bazylia|bazylia,bazylii
-kolendra|kolendra,kolendry
-tymianek|tymianek
-oregano|oregano
-majeranek|majeranek,majeranku
-papryka słodka mielona|papryka słodka mielona,papryka mielona,papryka słodka,papryka wędzona
-liść laurowy|liść laurowy,liście laurowe
-ziele angielskie|ziele angielskie
-kminek|kminek
-kmin rzymski|kmin rzymski,kumin
-curry|curry,przyprawa curry,pasta curry
-kurkuma|kurkuma
-cynamon|cynamon,cynamonu
-gałka muszkatołowa|gałka muszkatołowa`;
+/* ======================================================================
+   TEKSTY INTERFEJSU / UI TEXT / BRUGERFLADE
+   ====================================================================== */
+const UI={
+pl:{title:"Z lodówki na talerz",h1a:"Z lodówki",h1b:"na talerz",
+  lede:"Dodaj to, co masz w lodówce i szafkach. Przepisy poniżej ułożą się od tych, które wykorzystują najwięcej twoich składników, a brakujące produkty zostaną zaznaczone.",
+  fridge:"W mojej lodówce",example:"(przykład — zamień na swoje)",clear:"Wyczyść wszystko",placeholder:"np. kurczak, ziemniaki, śmietana",add:"Dodaj",addAria:"Dodaj składnik",remove:"Usuń",
+  unknownHint:"Składników z przerywaną ramką nie ma w moich przepisach — zostaną użyte w wyszukiwaniu na stronach z przepisami na dole.",unknownTitle:"Nie ma go w przepisach na tej stronie",
+  quick:"Szybkie dodawanie",meal:"Posiłek",time:"Czas",diet:"Dieta",sort:"Sortuj",
+  typ:{any:"Cokolwiek",obiad:"Obiad",zupa:"Zupa",sniadanie:"Śniadanie i kolacja",salatka:"Sałatki i przekąski",deser:"Desery i wypieki"},
+  czas:{0:"Bez limitu",20:"Do 20 min",30:"Do 30 min",45:"Do 45 min",60:"Do godziny"},
+  dietaOpt:{none:"Bez ograniczeń",wege:"Wegetariańska",weganskie:"Wegańska",bezmiesa:"Bez mięsa (z rybą)"},
+  sortOpt:{used:"Najwięcej moich składników",missing:"Najmniej do kupienia",time:"Najszybsze"},
+  staples:"Mam podstawowe produkty: sól, pieprz, olej, oliwa, masło, mąka, cukier, czosnek, cebula, bulion",
+  spices:"Mam typowe przyprawy: majeranek, papryka mielona, liść laurowy, ziele angielskie, oregano, cynamon i podobne",
+  results:"Co możesz ugotować",recipes:["przepis","przepisy","przepisów"],more:"Pokaż więcej",
+  emptyNone:"Dodaj składniki, a tutaj pojawią się przepisy.",
+  emptyUnknown:"Żaden z tych składników nie występuje w moich przepisach. Spróbuj prostszych nazw (np. „kurczak” zamiast „kurczak zagrodowy”) albo skorzystaj z wyszukiwania na stronach z przepisami poniżej.",
+  emptyFilters:"Żaden przepis nie pasuje do tych filtrów. Zmień posiłek, czas albo dietę.",
+  toBuy:"Do kupienia",nothingToBuy:"Nic nie trzeba kupować",show:"Pokaż przepis ▾",ingredients:"Składniki",method:"Przygotowanie",
+  legend:"✓ masz   · podstawowe   + do kupienia",other:"Zobacz inne wersje tego przepisu ↗",recipeWord:"przepis",untranslated:"",
+  portions:["porcja","porcje","porcji"],trud:{"łatwe":"łatwe","średnie":"średnie","trudne":"trudne"},
+  typLabel:{obiad:"obiad",zupa:"zupa",sniadanie:"śniadanie / kolacja",salatka:"sałatka / przekąska",deser:"deser"},
+  dieta:{mieso:"z mięsem",ryba:"z rybą",wege:"wegetariańskie",weganskie:"wegańskie"},
+  sitesH:"Szukaj dalej na polskich stronach",sitesWith:"Przepisy z: ",sitesTail:". Otwiera się w nowej karcie.",sitesEmpty:"Dodaj składniki, żeby wyszukać przepisy na popularnych polskich stronach.",
+  footer:"Przepisy są zapisane w pliku przepisy.js (tłumaczenia: przepisy-en.js i przepisy-da.js) — możesz dopisywać własne. Wyszukiwanie na stronach zewnętrznych działa przez Google.",
+  sites:[["Kwestia Smaku","kwestiasmaku.com"],["Ania Gotuje","aniagotuje.pl"],["Kuchnia Lidla","kuchnialidla.pl"],["Przepisy.pl","przepisy.pl"]]},
+en:{title:"Fridge to Plate",h1a:"Fridge",h1b:"to plate",
+  lede:"Add what you have in your fridge and cupboards. The recipes below are ranked by how many of your ingredients they use, and anything you'd still need to buy is flagged.",
+  fridge:"In my fridge",example:"(example — replace with yours)",clear:"Clear all",placeholder:"e.g. chicken, potatoes, sour cream",add:"Add",addAria:"Add an ingredient",remove:"Remove",
+  unknownHint:"Ingredients with a dashed outline aren't used in these recipes — they'll still be used when you search the recipe sites below.",unknownTitle:"Not used in the recipes on this site",
+  quick:"Quick add",meal:"Meal",time:"Time",diet:"Diet",sort:"Sort by",
+  typ:{any:"Anything",obiad:"Main meals",zupa:"Soups",sniadanie:"Breakfast & supper",salatka:"Salads & snacks",deser:"Desserts & baking"},
+  czas:{0:"No limit",20:"Up to 20 min",30:"Up to 30 min",45:"Up to 45 min",60:"Up to 1 hour"},
+  dietaOpt:{none:"No restriction",wege:"Vegetarian",weganskie:"Vegan",bezmiesa:"No meat (fish is fine)"},
+  sortOpt:{used:"Uses most of my food",missing:"Fewest things to buy",time:"Quickest"},
+  staples:"I have basic staples: salt, pepper, oil, olive oil, butter, flour, sugar, garlic, onion, stock",
+  spices:"I have common spices: marjoram, paprika, bay leaves, allspice, oregano, cinnamon and similar",
+  results:"What you can make",recipes:["recipe","recipes","recipes"],more:"Show more",
+  emptyNone:"Add some ingredients and recipes will appear here.",
+  emptyUnknown:"None of these ingredients are used in these recipes. Try simpler names (e.g. “chicken” instead of “free-range chicken thighs”) or search the recipe sites below.",
+  emptyFilters:"No recipes match these filters. Try a different meal, time or diet.",
+  toBuy:"To buy",nothingToBuy:"Nothing to buy",show:"Show recipe ▾",ingredients:"Ingredients",method:"Method",
+  legend:"✓ you have   · basics   + to buy",other:"Find other versions of this recipe ↗",recipeWord:"recipe",untranslated:"This recipe hasn't been translated yet, so it's shown in Polish.",
+  portions:["serving","servings","servings"],trud:{"łatwe":"easy","średnie":"medium","trudne":"hard"},
+  typLabel:{obiad:"main",zupa:"soup",sniadanie:"breakfast / supper",salatka:"salad / snack",deser:"dessert"},
+  dieta:{mieso:"with meat",ryba:"with fish",wege:"vegetarian",weganskie:"vegan"},
+  sitesH:"Search more recipe sites",sitesWith:"Recipes with: ",sitesTail:". Opens in a new tab.",sitesEmpty:"Add ingredients to search popular recipe sites.",
+  footer:"The recipes are stored in przepisy.js (translations in przepisy-en.js and przepisy-da.js) — you can add your own. Searches on other sites go through Google.",
+  sites:[["BBC Good Food","bbcgoodfood.com"],["Allrecipes","allrecipes.com"],["Jamie Oliver","jamieoliver.com"]]},
+da:{title:"Fra køleskab til tallerken",h1a:"Fra køleskab",h1b:"til tallerken",
+  lede:"Tilføj det, du har i køleskabet og skabene. Opskrifterne herunder sorteres efter, hvor mange af dine ingredienser de bruger, og det, du mangler, bliver markeret.",
+  fridge:"I mit køleskab",example:"(eksempel – skift til dit eget)",clear:"Ryd alt",placeholder:"fx kylling, kartofler, creme fraiche",add:"Tilføj",addAria:"Tilføj en ingrediens",remove:"Fjern",
+  unknownHint:"Ingredienser med stiplet kant bruges ikke i opskrifterne her – de bruges stadig, når du søger på opskriftssiderne nederst.",unknownTitle:"Bruges ikke i opskrifterne på denne side",
+  quick:"Hurtig tilføjelse",meal:"Måltid",time:"Tid",diet:"Kost",sort:"Sortér efter",
+  typ:{any:"Alt",obiad:"Aftensmad",zupa:"Supper",sniadanie:"Morgenmad og aftensnack",salatka:"Salater og snacks",deser:"Desserter og bagværk"},
+  czas:{0:"Ingen grænse",20:"Op til 20 min.",30:"Op til 30 min.",45:"Op til 45 min.",60:"Op til 1 time"},
+  dietaOpt:{none:"Ingen begrænsning",wege:"Vegetarisk",weganskie:"Vegansk",bezmiesa:"Uden kød (fisk er ok)"},
+  sortOpt:{used:"Bruger mest af min mad",missing:"Færrest ting at købe",time:"Hurtigste"},
+  staples:"Jeg har basisvarer: salt, peber, olie, olivenolie, smør, mel, sukker, hvidløg, løg, bouillon",
+  spices:"Jeg har almindelige krydderier: merian, paprika, laurbærblade, allehånde, oregano, kanel og lignende",
+  results:"Det kan du lave",recipes:["opskrift","opskrifter","opskrifter"],more:"Vis flere",
+  emptyNone:"Tilføj ingredienser, så dukker opskrifterne op her.",
+  emptyUnknown:"Ingen af disse ingredienser bruges i opskrifterne her. Prøv enklere navne (fx „kylling“ i stedet for „økologiske kyllingelår“), eller søg på opskriftssiderne herunder.",
+  emptyFilters:"Ingen opskrifter passer til disse filtre. Prøv et andet måltid, en anden tid eller kost.",
+  toBuy:"Skal købes",nothingToBuy:"Intet at købe",show:"Vis opskrift ▾",ingredients:"Ingredienser",method:"Fremgangsmåde",
+  legend:"✓ har du   · basisvarer   + skal købes",other:"Find andre udgaver af opskriften ↗",recipeWord:"opskrift",untranslated:"Opskriften er ikke oversat endnu og vises derfor på polsk.",
+  portions:["portion","portioner","portioner"],trud:{"łatwe":"nem","średnie":"mellem","trudne":"svær"},
+  typLabel:{obiad:"aftensmad",zupa:"suppe",sniadanie:"morgenmad / aftensnack",salatka:"salat / snack",deser:"dessert"},
+  dieta:{mieso:"med kød",ryba:"med fisk",wege:"vegetarisk",weganskie:"vegansk"},
+  sitesH:"Søg videre på danske opskriftssider",sitesWith:"Opskrifter med: ",sitesTail:". Åbner i en ny fane.",sitesEmpty:"Tilføj ingredienser for at søge på populære danske opskriftssider.",
+  footer:"Opskrifterne ligger i przepisy.js (oversættelser i przepisy-en.js og przepisy-da.js) – du kan selv tilføje flere. Søgning på andre sider går gennem Google.",
+  sites:[["Arla","arla.dk"],["Valdemarsro","valdemarsro.dk"],["Mummum","mummum.dk"],["DK-kogebogen","dk-kogebogen.dk"]]}
+};
 
+/* ======================================================================
+   SKŁADNIKI: klucz>rodzic | polskie formy | english forms | danske former
+   Pierwsza forma w każdym języku jest nazwą wyświetlaną.
+   Rodzic łączy rodzinę produktów (kurczak ↔ pierś z kurczaka).
+   ====================================================================== */
+const SLOWNIK=`kurczak|kurczak,kurczaka,kurczaki,kurczę,mięso z kurczaka,drób,porcja rosołowa|chicken,chickens,whole chicken,poultry|kylling,kyllinger,kyllingekød,hel kylling
+pierś z kurczaka>kurczak|pierś z kurczaka,piersi z kurczaka,filet z kurczaka,filety z kurczaka,pierś kurczaka,piersi kurczaka,filet z piersi|chicken breast,chicken breasts,chicken fillet,chicken fillets|kyllingebryst,kyllingebrystfilet,kyllingefilet,kyllingefileter
+udka z kurczaka>kurczak|udka z kurczaka,udko z kurczaka,udka,udko,podudzia,podudzie,ćwiartki z kurczaka|chicken thighs,chicken thigh,chicken legs,chicken drumsticks,drumsticks|kyllingelår,kyllingeoverlår,kyllingeunderlår,kyllingeben
+wątróbka drobiowa|wątróbka drobiowa,wątróbka,wątróbki,wątroba|chicken livers,chicken liver,liver|kyllingelever,lever
+wieprzowina|wieprzowina,wieprzowiny,mięso wieprzowe|pork|svinekød,grisekød
+schab>wieprzowina|schab,schabu,kotlety schabowe|pork loin,pork chops,pork chop|svinekam,koteletter,kotelet
+karkówka>wieprzowina|karkówka,karkówki|pork neck,pork collar,pork neck steaks|svinenakke,nakkekoteletter
+łopatka wieprzowa>wieprzowina|łopatka wieprzowa,łopatka,łopatki|pork shoulder|svinebov,bov
+wołowina|wołowina,wołowiny,mięso wołowe,gulaszowe|stewing beef,beef,braising steak|oksekød,okse,gullaschkød
+mięso mielone|mięso mielone,mielone,mięsa mielonego,mielone mięso,mięso mielone wieprzowe|mince,minced meat,ground meat|hakket kød,fars,hakket svinekød,hakket grisekød
+wołowina mielona>mięso mielone|wołowina mielona,mielona wołowina,mielone wołowe|minced beef,ground beef,beef mince|hakket oksekød,oksefars
+kiełbasa|kiełbasa,kiełbasy,kiełbaski,kiełbaska,parówki,parówka|smoked sausage,sausage,sausages,kielbasa,hot dogs|røget pølse,pølse,pølser,wienerpølser
+biała kiełbasa>kiełbasa|biała kiełbasa,białej kiełbasy|Polish white sausage,white sausage,fresh sausage|hvid pølse (polsk biała kiełbasa),hvid pølse,medisterpølse,medister
+boczek|boczek,boczku,bekon,boczek wędzony|bacon,smoked bacon,streaky bacon,pancetta|bacon,røget bacon,flæsk,røget flæsk,bacontern
+szynka|szynka,szynki,szynkę,wędlina|ham,cooked ham,sliced ham|skinke,kogt skinke,hamburgerryg
+łosoś|łosoś,łososia,łososie,filet z łososia|salmon,salmon fillet,salmon fillets|laks,laksefilet,laksefileter
+dorsz|dorsz,dorsza,filet z dorsza,ryba,ryby,biała ryba,mintaj,miruna|cod,cod fillet,white fish,fish,pollock,haddock|torsk,torskefilet,fisk,hvid fisk,sej,kuller
+tuńczyk|tuńczyk,tuńczyka,tuńczyk z puszki|tuna,canned tuna,tinned tuna|tun,tun på dåse
+krewetki|krewetki,krewetka,krewetek|prawns,shrimp,king prawns|rejer,tigerrejer
+śledź|śledź,śledzie,śledzia,matjasy,matjas|herring,matjes herring,pickled herring|sild,matjessild,marinerede sild,kryddersild
+makrela wędzona|makrela wędzona,makrela,makreli,wędzona makrela|smoked mackerel,mackerel|røget makrel,makrel
+jajka|jajka,jajko,jaja,jajo,jajek,jaj|eggs,egg|æg
+mleko|mleko,mleka|milk,whole milk|mælk,sødmælk,letmælk
+masło|masło,masła|butter|smør
+śmietana|śmietana,śmietany,kwaśna śmietana,śmietana 18%,śmietana 12%|sour cream,soured cream,crème fraîche,creme fraiche|creme fraiche,cremefraiche,creme fraiche 18%,syrnet fløde
+śmietanka>śmietana|śmietanka,śmietanki,śmietana 30%,kremówka,śmietana kremówka,słodka śmietanka|double cream,cream,heavy cream,whipping cream|piskefløde,fløde,madlavningsfløde
+jogurt naturalny|jogurt naturalny,jogurt,jogurtu,jogurt grecki|natural yogurt,plain yogurt,yogurt,yoghurt,greek yogurt|yoghurt naturel,yoghurt,græsk yoghurt,skyr
+twaróg|twaróg,twarogu,ser biały,biały ser,twarożek|quark,curd cheese,farmer's cheese,cottage cheese|kvark,hytteost
+ser żółty|ser żółty,ser,sera,żółty ser,gouda,edam,cheddar|cheese,hard cheese,grated cheese,cheddar,gouda,edam|ost,skiveost,revet ost,gouda,cheddar,danbo,havarti
+parmezan|parmezan,parmezanu,grana padano|parmesan,grana padano|parmesan,parmesanost
+mozzarella|mozzarella,mozzarelli|mozzarella|mozzarella
+feta|feta,fety,ser feta,ser sałatkowy|feta,feta cheese|feta,fetaost,salatost
+ziemniaki|ziemniaki,ziemniak,ziemniaków,kartofle,kartofel,młode ziemniaki|potatoes,potato,new potatoes,mashed potatoes|kartofler,kartoffel,nye kartofler,kartoffelmos
+ryż|ryż,ryżu,ryż basmati,ryż jaśminowy,arborio|rice,basmati rice,jasmine rice,risotto rice|ris,basmatiris,jasminris,risottoris
+makaron|makaron,makaronu,penne,świderki,kokardki,nitki,łazanki,tagliatelle|pasta,penne,fusilli,noodles,tagliatelle,macaroni|pasta,penne,fusilli,nudler,tagliatelle,makaroni
+spaghetti>makaron|spaghetti|spaghetti|spaghetti
+kasza gryczana|kasza gryczana,kaszy gryczanej,gryczana,kasza|buckwheat,buckwheat groats,kasha|boghvede,boghvedegryn
+kasza jęczmienna|kasza jęczmienna,pęczak,kasza pęczak,jęczmienna|pearl barley,barley|perlebyg,byggryn
+płatki owsiane|płatki owsiane,płatków owsianych,owsianka,płatki|rolled oats,oats,porridge oats,oatmeal|havregryn,havre
+pieczywo|pieczywo,pieczywa|bakery bread|bagværk
+chleb>pieczywo|chleb,chleba,chleb tostowy,tosty|bread,sliced bread,sandwich bread,toast|brød,toastbrød,franskbrød
+bułka>pieczywo|bułka,bułki,bułek,bułeczki,kajzerka|bread rolls,bread roll,rolls,buns,burger buns|boller,bolle,rundstykker,rundstykke,burgerboller
+bagietka>pieczywo|bagietka,bagietki,ciabatta|baguette,ciabatta,french stick|flute,baguette,ciabatta
+bułka tarta|bułka tarta,bułki tartej,panierka|breadcrumbs,dried breadcrumbs,panko|rasp,panko
+tortilla|tortilla,tortille,tortilli,wrapy,placki tortilla|tortillas,tortilla,wraps,tortilla wraps|tortillas,tortilla,wraps
+mąka|mąka,mąki,mąka pszenna|plain flour,flour,all-purpose flour,wheat flour|hvedemel,mel
+mąka ziemniaczana|mąka ziemniaczana,skrobia|potato starch,cornflour,cornstarch|kartoffelmel,majsstivelse
+cukier|cukier,cukru|sugar,caster sugar,granulated sugar|sukker,strøsukker
+cukier puder|cukier puder|icing sugar,powdered sugar|flormelis
+cukier waniliowy|cukier waniliowy,wanilia|vanilla sugar,vanilla|vaniljesukker,vanilje
+proszek do pieczenia|proszek do pieczenia,proszek|baking powder|bagepulver
+drożdże|drożdże,drożdży|fresh yeast,yeast|gær,frisk gær
+kakao|kakao|cocoa powder,cocoa|kakao,kakaopulver
+czekolada|czekolada,czekolady,mleczna czekolada|chocolate,milk chocolate|chokolade,mælkechokolade
+gorzka czekolada>czekolada|gorzka czekolada,ciemna czekolada|dark chocolate|mørk chokolade
+miód|miód,miodu|honey|honning
+pomidory|pomidory,pomidor,pomidorów,świeże pomidory|tomatoes,tomato|tomater,tomat
+pomidorki koktajlowe>pomidory|pomidorki koktajlowe,pomidorki,pomidorki cherry,koktajlowe|cherry tomatoes|cherrytomater,snacktomater
+pomidory z puszki>pomidory|pomidory z puszki,pomidory krojone,pomidory w puszce,krojone pomidory,pomidory puszka|canned chopped tomatoes,chopped tomatoes,canned tomatoes,tinned tomatoes|hakkede tomater på dåse,hakkede tomater,tomater på dåse,flåede tomater
+przecier pomidorowy|przecier pomidorowy,passata,przecier,sos pomidorowy|passata,tomato passata,tomato sauce|passata,tomatpassata,tomatsauce
+koncentrat pomidorowy|koncentrat pomidorowy,koncentrat|tomato purée,tomato puree,tomato paste|tomatpuré,tomatkoncentrat
+cebula|cebula,cebuli,cebule,biała cebula,żółta cebula|onion,onions,yellow onion,white onion|løg,gule løg
+cebula czerwona>cebula|cebula czerwona,czerwona cebula|red onion,red onions|rødløg
+cebula dymka|cebula dymka,dymka,cebulka dymka,dymki|spring onions,spring onion,scallions,green onions|forårsløg
+szczypiorek|szczypiorek,szczypiorku,szczypior|chives|purløg
+czosnek|czosnek,czosnku,ząbek czosnku|garlic,garlic clove,garlic cloves|hvidløg,hvidløgsfed
+marchew|marchew,marchewka,marchewki,marchwi,marchewek|carrots,carrot|gulerødder,gulerod
+pietruszka|pietruszka,korzeń pietruszki,pietruszki|parsley root,parsnip|persillerod,pastinak
+seler|seler,selera,seler korzeniowy,seler naciowy|celeriac,celery|knoldselleri,selleri,bladselleri
+por|por,pora,pory|leek,leeks|porre,porrer
+papryka|papryka,papryki,papryk,papryka czerwona,papryka zielona,papryka żółta,czerwona papryka|peppers,pepper,bell pepper,bell peppers,red pepper,green pepper,yellow pepper|peberfrugt,peberfrugter,rød peberfrugt,grøn peberfrugt,gul peberfrugt
+ogórek|ogórek,ogórki,ogórków,świeży ogórek,ogórek zielony|cucumber,cucumbers|agurk,agurker
+ogórek kiszony|ogórek kiszony,ogórki kiszone,kiszone ogórki,kiszony ogórek,ogórki konserwowe,korniszony|pickled cucumbers,pickles,gherkins,dill pickles,pickled gherkins|saltagurker,syltede agurker,surt syltede agurker,asier,cornichoner
+cukinia|cukinia,cukinie,cukinii|courgette,courgettes,zucchini|squash,courgette,zucchini
+bakłażan|bakłażan,bakłażany,oberżyna|aubergine,eggplant|aubergine
+brokuł|brokuł,brokuły,brokułu,brokułów|broccoli|broccoli
+kalafior|kalafior,kalafiora|cauliflower|blomkål
+kapusta|kapusta,kapusty,biała kapusta,kapusta biała,kapusta włoska,młoda kapusta|white cabbage,cabbage,savoy cabbage|hvidkål,kål,spidskål,savoykål
+kapusta kiszona|kapusta kiszona,kiszona kapusta,kapusty kiszonej|sauerkraut|surkål
+szpinak|szpinak,szpinaku,baby szpinak|spinach,baby spinach|spinat,babyspinat
+sałata|sałata,sałaty,sałata rzymska,rukola,mix sałat|lettuce,romaine,salad leaves,rocket,arugula|salat,hjertesalat,romainesalat,rucola,salatblade
+pieczarki|pieczarki,pieczarka,pieczarek,grzyby,grzyby świeże,boczniaki|mushrooms,mushroom,button mushrooms,chestnut mushrooms|champignoner,champignon,svampe,brune champignoner
+suszone grzyby|suszone grzyby,grzyby suszone,borowiki suszone|dried mushrooms,dried porcini|tørrede svampe,tørrede karl johan
+groszek|groszek,groszku,groszek zielony,groszek mrożony|peas,green peas,frozen peas|ærter,grønne ærter,frosne ærter
+fasolka szparagowa|fasolka szparagowa,fasolka,fasolki|green beans,french beans,string beans|grønne bønner,haricots verts
+fasola|fasola,fasoli|beans|bønner
+fasola czerwona>fasola|fasola czerwona,czerwona fasola,fasola kidney|kidney beans,red kidney beans|kidneybønner,røde kidneybønner
+fasola biała>fasola|fasola biała,biała fasola,fasola jaś|white beans,cannellini beans,butter beans,haricot beans|hvide bønner,cannellinibønner,smørbønner
+ciecierzyca|ciecierzyca,ciecierzycy,cieciorka|chickpeas,chick peas,garbanzo beans|kikærter
+soczewica|soczewica,soczewicy,czerwona soczewica|red lentils,lentils|røde linser,linser
+groch łuskany|groch łuskany,groch,grochu|split peas,yellow split peas|flækærter,gule ærter
+kukurydza|kukurydza,kukurydzy,kukurydza z puszki|sweetcorn,corn,canned corn|majs,majskerner
+dynia|dynia,dyni|pumpkin,butternut squash,butternut|græskar,butternut,hokkaido
+buraki|buraki,burak,buraczki,buraków|beetroot,beetroots,beets|rødbeder,rødbede
+rzodkiewka|rzodkiewka,rzodkiewki,rzodkiewek|radishes,radish|radiser,radise
+awokado|awokado|avocado,avocados|avocado,avocadoer
+oliwki|oliwki,oliwek|olives,black olives,green olives|oliven
+cytryna|cytryna,cytryny,cytryn|lemon,lemons|citron,citroner
+sok z cytryny>cytryna|sok z cytryny|lemon juice|citronsaft
+jabłka|jabłka,jabłko,jabłek|apples,apple|æbler,æble
+banany|banany,banan,bananów|bananas,banana|bananer,banan
+truskawki|truskawki,truskawka,truskawek|strawberries,strawberry|jordbær
+borówki|borówki,borówka,jagody,borówek|blueberries,blueberry,bilberries|blåbær
+śliwki|śliwki,śliwka,śliwek|plums,plum|blommer,blomme
+śliwki suszone|śliwki suszone,suszone śliwki|prunes,dried plums|svesker
+rodzynki|rodzynki,rodzynek|raisins,sultanas|rosiner
+orzechy włoskie|orzechy włoskie,orzechy,orzechów|walnuts,nuts|valnødder,nødder
+pestki dyni|pestki dyni,pestki|pumpkin seeds|græskarkerner
+sezam|sezam,sezamu|sesame seeds,sesame|sesamfrø,sesam
+tahini|tahini,pasta sezamowa|tahini,sesame paste|tahin,tahini,sesampasta
+mleko kokosowe|mleko kokosowe,mleczko kokosowe|coconut milk|kokosmælk
+sos sojowy|sos sojowy,sosu sojowego,soja|soy sauce,soya sauce|sojasovs,soja
+musztarda|musztarda,musztardy|mustard|sennep
+majonez|majonez,majonezu|mayonnaise,mayo|mayonnaise
+ketchup|ketchup,keczup|ketchup,tomato ketchup|ketchup
+chrzan|chrzan,chrzanu|horseradish|peberrod
+zakwas na żurek|zakwas na żurek,zakwas,żur,żurek|sour rye starter (for żurek),żurek starter,sour rye starter|surdejsbase til żurek (rugsurdej),rugsurdej,surdejsbase
+olej|olej,oleju,olej rzepakowy,olej słonecznikowy|vegetable oil,oil,rapeseed oil,sunflower oil|neutral olie,olie,rapsolie,solsikkeolie
+oliwa|oliwa,oliwa z oliwek,oliwy|olive oil|olivenolie
+sól|sól,soli|salt,sea salt|salt,havsalt
+pieprz|pieprz,pieprzu,pieprz czarny|black pepper,ground pepper,peppercorns|peber,sort peber,peberkorn
+woda|woda|water|vand
+bulion|bulion,bulionu,rosół,kostka rosołowa,wywar|stock,broth,chicken stock,stock cube,bouillon|bouillon,hønsebouillon,fond,bouillonterning
+bulion warzywny>bulion|bulion warzywny,wywar warzywny|vegetable stock,vegetable broth|grøntsagsbouillon
+imbir|imbir,imbiru|fresh ginger,ginger|frisk ingefær,ingefær
+chili|chili,papryczka chili,papryczki chili,płatki chili|chilli,chili,chilli flakes,red chilli,chillies|chili,chiliflager,rød chili
+koperek|koperek,koperku,koper|dill|dild
+natka pietruszki|natka pietruszki,natka,natki,pietruszka natka|parsley,flat-leaf parsley,fresh parsley|persille,bredbladet persille,kruspersille
+bazylia|bazylia,bazylii|basil|basilikum
+kolendra|kolendra,kolendry|coriander,cilantro|koriander
+tymianek|tymianek|thyme|timian
+oregano|oregano|oregano|oregano
+majeranek|majeranek,majeranku|marjoram|merian
+papryka słodka mielona|papryka słodka mielona,papryka mielona,papryka słodka,papryka wędzona|paprika,sweet paprika,smoked paprika|paprika,paprikapulver,røget paprika
+liść laurowy|liść laurowy,liście laurowe|bay leaves,bay leaf|laurbærblade,laurbærblad
+ziele angielskie|ziele angielskie|allspice,allspice berries|allehånde,hel allehånde
+kminek|kminek|caraway seeds,caraway|kommen,kommenfrø
+kmin rzymski|kmin rzymski,kumin|ground cumin,cumin|spidskommen
+curry|curry,przyprawa curry,pasta curry|curry powder,curry,curry paste|karry,karrypulver,karrypasta
+kurkuma|kurkuma|turmeric|gurkemeje
+cynamon|cynamon,cynamonu|cinnamon|kanel
+gałka muszkatołowa|gałka muszkatołowa|nutmeg|muskatnød,muskat`;
+
+/* ======================================================================
+   ILOŚCI / AMOUNTS / MÆNGDER — exact translations, then general rules
+   ====================================================================== */
+const AMOUNTS=`1 kg (porcja rosołowa lub udka)|1 kg (soup chicken pieces or legs)|1 kg (kyllingestykker til suppe eller lår)
+1 główka|1 head|1 hoved
+1 główka (rzymska)|1 head (romaine)|1 hoved (romainesalat)
+1 kawałek|1 piece|1 stykke
+1 kulka|1 ball|1 kugle
+1 mały|1 small|1 lille
+1 opakowanie|1 sachet (16 g)|1 spsk. (ca. 16 g)
+1 puszka (opcjonalnie)|1 can (optional)|1 dåse (valgfrit)
+1,5 l (najlepiej rosół)|1.5 l (ideally homemade chicken broth)|1,5 l (gerne hjemmelavet hønsebouillon)
+1/2 główki|1/2 head|1/2 hoved
+1/2 małej główki|1/2 small head|1/2 lille hoved
+1/4 bulwy|1/4 of a celeriac|1/4 knold
+2 filety (ok. 300 g)|2 fillets (about 300 g)|2 fileter (ca. 300 g)
+2 puszki (800 g)|2 cans (800 g)|2 dåser (800 g)
+2 szt. (dojrzałe)|2 (ripe)|2 stk. (modne)
+2 szt. (ok. 600 g)|2 (about 600 g)|2 stk. (ca. 600 g)
+2 szt. (opcjonalnie)|2 (optional)|2 stk. (valgfrit)
+2 żółtka + 1 całe|2 yolks + 1 whole egg|2 blommer + 1 helt æg
+20 g (świeże)|20 g (fresh)|20 g (frisk)
+200 g (czerwona)|200 g (red)|200 g (røde)
+200 g (miękkie)|200 g (softened)|200 g (blødt)
+200 g (nitki)|200 g (thin soup noodles)|200 g (tynde suppenudler)
+250 g (zimne)|250 g (cold)|250 g (koldt)
+250 ml (ciepła)|250 ml (warm)|250 ml (lunkent)
+3 szt. (bardzo dojrzałe)|3 (very ripe)|3 stk. (meget modne)
+300 g (najlepiej arborio)|300 g (ideally arborio)|300 g (gerne arborio)
+300 g (łazanki)|300 g (łazanki or other short pasta)|300 g (łazanki eller anden kort pasta)
+300 g ugotowanego (najlepiej z poprzedniego dnia)|300 g cooked (ideally from the day before)|300 g kogte (gerne fra dagen før)
+4 kromki (bagietka lub ciabatta)|4 slices (baguette or ciabatta)|4 skiver (flute eller ciabatta)
+4 kromki (tostowy)|4 slices (sandwich bread)|4 skiver (toastbrød)
+4 plastry (ok. 600 g)|4 slices (about 600 g)|4 skiver (ca. 600 g)
+4 szt. (ugotowane)|4 (cooked)|4 stk. (kogte)
+400 g (lub inne owoce)|400 g (or other fruit)|400 g (eller anden frugt)
+400 g (płaty matjas)|400 g (matjes fillets)|400 g (matjesfileter)
+50 g (opcjonalnie)|50 g (optional)|50 g (valgfrit)
+500 g (lub jabłka, borówki)|500 g (or apples, blueberries)|500 g (eller æbler, blåbær)
+80 g (roztopione)|80 g (melted)|80 g (smeltet)
+do podania|to serve|til servering
+do posypania|to sprinkle|til drys
+do smaku|to taste|efter smag
+do smażenia|for frying|til stegning
+garść|a handful|en håndfuld
+garść (opcjonalnie)|a handful (optional)|en håndfuld (valgfrit)
+kilka liści|a few leaves|nogle blade
+kilka ziaren|a few whole peppercorns|nogle hele peberkorn
+pęczek|a bunch|et bundt
+szczypta|a pinch|en knivspids`;
+const AMT=new Map(AMOUNTS.split("\n").map(l=>{const[pl,en,da]=l.split("|");return[pl,{en,da}]}));
+/* Ilości spoza tabeli: tłumaczymy jednostki słowo po słowie */
+function amountIn(a,lang){
+  if(lang==="pl"||!a)return a;
+  const ex=AMT.get(a);if(ex)return ex[lang];
+  let s=" "+a+" ";
+  const W={en:{"łyżka":"tbsp","łyżki":"tbsp","łyżek":"tbsp","łyżeczka":"tsp","łyżeczki":"tsp","łyżeczek":"tsp","ząbek":"clove","ząbki":"cloves","ząbków":"cloves","puszka":"can","puszki":"cans","puszek":"cans","pęczek":"bunch","kromki":"slices","kromek":"slices","plastry":"slices","plastrów":"slices","liście":"leaves","ziarna":"berries","ziaren":"berries","żółtko":"egg yolk","żółtka":"egg yolks","opcjonalnie":"optional","szt.":"","ok.":"about"},
+           da:{"łyżka":"spsk.","łyżki":"spsk.","łyżek":"spsk.","łyżeczka":"tsk.","łyżeczki":"tsk.","łyżeczek":"tsk.","ząbek":"fed","ząbki":"fed","ząbków":"fed","puszka":"dåse","puszki":"dåser","puszek":"dåser","pęczek":"bundt","kromki":"skiver","kromek":"skiver","plastry":"skiver","plastrów":"skiver","liście":"blade","ziarna":"korn","ziaren":"korn","żółtko":"æggeblomme","żółtka":"æggeblommer","opcjonalnie":"valgfrit","szt.":"stk.","ok.":"ca."}}[lang];
+  s=s.replace(/[^\s()]+/g,w=>(w in W)?W[w]:w).replace(/\s+/g," ").trim();
+  if(lang==="en")s=s.replace(/(\d),(\d)/g,"$1.$2");
+  return s;
+}
+
+/* ======================================================================
+   STAN I NARZĘDZIA
+   ====================================================================== */
 const STAPLES=new Set(["sól","pieprz","olej","oliwa","masło","mąka","cukier","czosnek","cebula","bulion","bulion warzywny","woda"]);
 const SPICES=new Set(["papryka słodka mielona","majeranek","liść laurowy","ziele angielskie","kminek","kmin rzymski","oregano","tymianek","cynamon","curry","kurkuma","chili","gałka muszkatołowa","proszek do pieczenia","cukier waniliowy","cukier puder"]);
-const QUICK=["jajka","mleko","ser żółty","kurczak","mięso mielone","boczek","kiełbasa","ziemniaki","ryż","makaron","pomidory","papryka","ogórek","marchew","pieczarki","śmietana","twaróg","jabłka"];
+const QUICK=["jajka","mleko","ser żółty","kurczak","mięso mielone","boczek","kiełbasa","dorsz","ziemniaki","ryż","makaron","pomidory","papryka","ogórek","marchew","pieczarki","śmietana","twaróg","jabłka"];
 const EXAMPLE=["kurczak","ziemniaki","pieczarki","śmietana","jajka"];
-const TYP={obiad:"obiad",zupa:"zupa",sniadanie:"śniadanie / kolacja",salatka:"sałatka / przekąska",deser:"deser"};
-const DIETA={mieso:"z mięsem",ryba:"z rybą",wege:"wegetariańskie",weganskie:"wegańskie"};
-const SITES=[["Kwestia Smaku","kwestiasmaku.com"],["Ania Gotuje","aniagotuje.pl"],["Kuchnia Lidla","kuchnialidla.pl"],["Przepisy.pl","przepisy.pl"]];
+const LANGS=["pl","en","da"];
+const TR={en:window.PRZEPISY_EN||{},da:window.PRZEPISY_DA||{}};
 const PAGE=12;
-
 const $=id=>document.getElementById(id);
 const RECIPES=window.PRZEPISY||[];
 
-/* ---------- słownik ---------- */
-function norm(s){return String(s||"").toLowerCase().replace(/ł/g,"l").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9%\s]/g," ").replace(/\s+/g," ").trim()}
-const KEYS=new Map(), FORMS=[];
+function norm(s){return String(s||"").toLowerCase().replace(/ł/g,"l").replace(/æ/g,"ae").replace(/ø/g,"o").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9%\s]/g," ").replace(/\s+/g," ").trim()}
+const KEYS=new Map(), FORMS=[], seenForm=new Set();
 SLOWNIK.split("\n").forEach(line=>{
-  const[head,forms]=line.split("|");const[key,parent]=head.split(">");
-  KEYS.set(key,{key,parent:parent||null,forms:forms.split(",").map(f=>f.trim())});
-  forms.split(",").forEach(f=>FORMS.push({n:norm(f),key}));
+  const[head,pl,en,da]=line.split("|");const[key,parent]=head.split(">");
+  const names={pl:pl.split(","),en:(en||"").split(","),da:(da||"").split(",")};
+  KEYS.set(key,{key,parent:parent||null,names});
+  LANGS.forEach(l=>names[l].forEach(f=>{f=f.trim();const n=norm(f);if(n&&!seenForm.has(n)){seenForm.add(n);FORMS.push({n,key})}}));
 });
 function keyOf(text){
   const n=norm(text);if(!n)return null;
   const ex=FORMS.find(f=>f.n===n);if(ex)return ex.key;
-  // luźne dopasowanie końcówek: „kurczakiem”, „pomidorami”, „pieczarkach”
+  // luźne dopasowanie końcówek: „kurczakiem”, „pomidorami”, „tomatoes”
   let best=null,bestLen=0;
   for(const f of FORMS){
     if(f.n.split(" ").length!==n.split(" ").length)continue;
@@ -364,31 +499,76 @@ function keyOf(text){
   return best;
 }
 const parentOf=k=>(KEYS.get(k)||{}).parent;
-function covers(userKey,recipeKey){return userKey===recipeKey||parentOf(recipeKey)===userKey||parentOf(userKey)===recipeKey}
+function covers(u,r){return u===r||parentOf(r)===u||parentOf(u)===r}
+function nameIn(key,lang,fallback){const e=KEYS.get(key);return (e&&e.names[lang]&&e.names[lang][0])||fallback||key}
 
-/* przygotuj przepisy: klucz dla każdego składnika */
 RECIPES.forEach(r=>{r._s=r.s.map(([name,amt])=>({name,amt,key:keyOf(name)||norm(name)}))});
 
-/* ---------- stan ---------- */
-let ings=[], isExample=false, shown=PAGE;
-function load(){try{const s=JSON.parse(localStorage.getItem("zlnt-ings")||"null");if(Array.isArray(s)){ings=s.filter(x=>typeof x==="string");return}}catch(e){}ings=[...EXAMPLE];isExample=true}
-function save(){isExample=false;try{localStorage.setItem("zlnt-ings",JSON.stringify(ings))}catch(e){}}
+let lang="pl", ings=[], isExample=false, shown=PAGE;
+const T=()=>UI[lang];
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function read(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}}
+
+function pickLang(){
+  const saved=read("zlnt-lang");if(LANGS.includes(saved))return saved;
+  const nav=(navigator.languages||[navigator.language||""]).map(x=>String(x).slice(0,2).toLowerCase());
+  for(const n of nav){if(n==="pl")return"pl";if(n==="da"||n==="fo")return"da";if(n==="en")return"en"}
+  return"pl";
+}
+function load(){const s=read("zlnt-ings");if(Array.isArray(s)){ings=s.filter(x=>typeof x==="string");return}ings=EXAMPLE.map(k=>nameIn(k,lang));isExample=true}
+function save(){isExample=false;store("zlnt-ings",ings)}
 const OPT_IDS=["typ","czas","dieta","sort","staples","spices"];
-function loadOpts(){try{const o=JSON.parse(localStorage.getItem("zlnt-opts")||"{}");OPT_IDS.forEach(id=>{if(!(id in o))return;const e=$(id);if(e.type==="checkbox")e.checked=!!o[id];else e.value=o[id]})}catch(e){}}
-function saveOpts(){const o={};OPT_IDS.forEach(id=>{const e=$(id);o[id]=e.type==="checkbox"?e.checked:e.value});try{localStorage.setItem("zlnt-opts",JSON.stringify(o))}catch(e){}}
+function loadOpts(){const o=read("zlnt-opts")||{};OPT_IDS.forEach(id=>{if(!(id in o))return;const e=$(id);if(e.type==="checkbox")e.checked=!!o[id];else e.value=o[id]})}
+function saveOpts(){const o={};OPT_IDS.forEach(id=>{const e=$(id);o[id]=e.type==="checkbox"?e.checked:e.value});store("zlnt-opts",o)}
 
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function plural(n,forms){if(lang!=="pl")return n===1?forms[0]:forms[1];if(n===1)return forms[0];const d=n%10,h=n%100;return(d>=2&&d<=4&&!(h>=12&&h<=14))?forms[1]:forms[2]}
 
-/* ---------- lodówka ---------- */
+/* ======================================================================
+   JĘZYK
+   ====================================================================== */
+function fillSelect(id,map,order,def){const s=$(id),v=s.value;s.textContent="";order.forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=map[k];s.append(o)});s.value=(v&&order.includes(v))?v:(def||order[0])}
+function applyStatic(){
+  const t=T();
+  document.documentElement.lang=lang;document.title=t.title;
+  $("h1a").textContent=t.h1a;$("h1b").textContent=t.h1b;$("lede").textContent=t.lede;
+  $("fridgeLabel").textContent=t.fridge;$("exNote").textContent=t.example;$("clearBtn").textContent=t.clear;
+  $("ingInput").placeholder=t.placeholder;$("ingInput").setAttribute("aria-label",t.addAria);$("addBtn").textContent=t.add;
+  $("unknownHint").textContent=t.unknownHint;$("quickLabel").textContent=t.quick;
+  $("lblTyp").textContent=t.meal;$("lblCzas").textContent=t.time;$("lblDieta").textContent=t.diet;$("lblSort").textContent=t.sort;
+  fillSelect("typ",t.typ,["any","obiad","zupa","sniadanie","salatka","deser"],"obiad");
+  fillSelect("czas",t.czas,["0","20","30","45","60"]);
+  fillSelect("dieta",t.dietaOpt,["none","wege","weganskie","bezmiesa"]);
+  fillSelect("sort",t.sortOpt,["used","missing","time"]);
+  $("lblStaples").textContent=t.staples;$("lblSpices").textContent=t.spices;
+  $("res-h").textContent=t.results;$("moreBtn").textContent=t.more;$("sites-h").textContent=t.sitesH;$("footer").textContent=t.footer;
+  document.querySelectorAll("#langs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===lang)));
+  const dl=$("ingList");dl.textContent="";const seen=new Set();KEYS.forEach((v,k)=>{const n=nameIn(k,lang);if(!seen.has(n)){seen.add(n);const o=document.createElement("option");o.value=n;dl.append(o)}});
+}
+function setLang(l){
+  if(!LANGS.includes(l))return;
+  lang=l;store("zlnt-lang",l);
+  // przetłumacz rozpoznane składniki w lodówce na nowy język
+  const out=[],seen=new Set();
+  ings.forEach(x=>{const k=keyOf(x);const v=k?nameIn(k,lang):x;const id=k||norm(x);if(!seen.has(id)){seen.add(id);out.push(v)}});
+  ings=out;if(!isExample)store("zlnt-ings",ings);
+  applyStatic();update();
+}
+document.querySelectorAll("#langs button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+
+/* ======================================================================
+   LODÓWKA
+   ====================================================================== */
 function userKeys(){return ings.map(l=>({label:l,key:keyOf(l)}))}
 function renderChips(){
+  const t=T();
   $("exNote").hidden=!isExample;
   const c=$("chips");c.textContent="";
-  if(!ings.length){c.append(el("span","empty","Nic jeszcze nie dodano. Wpisz składnik powyżej albo kliknij jeden poniżej."))}
+  if(!ings.length)c.append(el("span","empty",t.emptyNone));
   let unknown=0;
   userKeys().forEach(({label,key},i)=>{
-    const s=el("span","chip"+(key?"":" unknown"));s.append(label);if(!key){unknown++;s.title="Nie ma go w przepisach na tej stronie"}
-    const b=el("button",null,"×");b.type="button";b.setAttribute("aria-label","Usuń: "+label);
+    const s=el("span","chip"+(key?"":" unknown"));s.append(label);if(!key){unknown++;s.title=t.unknownTitle}
+    const b=el("button",null,"×");b.type="button";b.setAttribute("aria-label",t.remove+": "+label);
     b.onclick=()=>{ings.splice(i,1);save();update()};s.append(b);c.append(s);
   });
   $("unknownHint").hidden=!unknown;
@@ -396,7 +576,7 @@ function renderChips(){
 function renderQuick(){
   const have=new Set(userKeys().map(u=>u.key));
   const q=$("quick");q.textContent="";
-  QUICK.filter(x=>!have.has(keyOf(x))).forEach(x=>{const b=el("button",null,"+ "+x);b.type="button";b.onclick=()=>add(x);q.append(b)});
+  QUICK.filter(k=>!have.has(k)).forEach(k=>{const n=nameIn(k,lang);const b=el("button",null,"+ "+n);b.type="button";b.onclick=()=>add(n);q.append(b)});
 }
 function add(raw){
   const have=new Set(userKeys().map(u=>u.key||norm(u.label)));
@@ -407,9 +587,10 @@ $("addForm").addEventListener("submit",e=>{e.preventDefault();const v=$("ingInpu
 $("clearBtn").onclick=()=>{ings=[];save();update()};
 OPT_IDS.forEach(id=>$(id).addEventListener("change",()=>{saveOpts();shown=PAGE;renderResults()}));
 $("moreBtn").onclick=()=>{shown+=PAGE;renderResults()};
-(function fillDatalist(){const dl=$("ingList");KEYS.forEach(v=>{const o=document.createElement("option");o.value=v.key;dl.append(o)})})();
 
-/* ---------- dopasowanie ---------- */
+/* ======================================================================
+   DOPASOWANIE I WYNIKI
+   ====================================================================== */
 function score(r,mine,staples,spices){
   const used=new Set();let need=0;
   const rows=r._s.map(it=>{
@@ -421,63 +602,60 @@ function score(r,mine,staples,spices){
   return{rows,used:[...used],need};
 }
 function dietOK(r,d){if(d==="none")return true;if(d==="weganskie")return r.dieta==="weganskie";if(d==="wege")return r.dieta==="wege"||r.dieta==="weganskie";return r.dieta!=="mieso"}
+function textOf(r){if(lang==="pl")return{n:r.n,o:r.o,k:r.k,tr:true};const x=TR[lang][r.n];return x?{n:x.n||r.n,o:x.o||r.o,k:(x.k&&x.k.length)?x.k:r.k,tr:true}:{n:r.n,o:r.o,k:r.k,tr:false}}
 
-/* ---------- wyniki ---------- */
-function plural(n,one,few,many){if(n===1)return one;const d=n%10,h=n%100;return(d>=2&&d<=4&&!(h>=12&&h<=14))?few:many}
 function renderResults(){
-  const L=$("list");L.textContent="";
+  const t=T(),L=$("list");L.textContent="";
   const mine=userKeys().filter(u=>u.key);
   const typ=$("typ").value,czas=+$("czas").value,dieta=$("dieta").value,sort=$("sort").value,staples=$("staples").checked,spices=$("spices").checked;
   let list=RECIPES.filter(r=>(typ==="any"||r.typ===typ)&&(!czas||r.czas<=czas)&&dietOK(r,dieta))
     .map(r=>({r,s:score(r,mine,staples,spices)})).filter(x=>x.s.used.length);
-  const cmpUsed=(a,b)=>b.s.used.length-a.s.used.length, cmpNeed=(a,b)=>a.s.need-b.s.need, cmpTime=(a,b)=>a.r.czas-b.r.czas;
-  list.sort(sort==="missing"?(a,b)=>cmpNeed(a,b)||cmpUsed(a,b)||cmpTime(a,b):sort==="time"?(a,b)=>cmpTime(a,b)||cmpNeed(a,b):(a,b)=>cmpUsed(a,b)||cmpNeed(a,b)||cmpTime(a,b));
-  $("count").textContent=list.length?list.length+" "+plural(list.length,"przepis","przepisy","przepisów"):"";
+  const cU=(a,b)=>b.s.used.length-a.s.used.length,cN=(a,b)=>a.s.need-b.s.need,cT=(a,b)=>a.r.czas-b.r.czas;
+  list.sort(sort==="missing"?(a,b)=>cN(a,b)||cU(a,b)||cT(a,b):sort==="time"?(a,b)=>cT(a,b)||cN(a,b):(a,b)=>cU(a,b)||cN(a,b)||cT(a,b));
+  $("count").textContent=list.length?list.length+" "+plural(list.length,t.recipes):"";
   $("moreBtn").hidden=list.length<=shown;
-  if(!list.length){
-    const n=el("div","note");
-    n.textContent=!ings.length?"Dodaj składniki, a tutaj pojawią się przepisy."
-      :!mine.length?"Żaden z tych składników nie występuje w moich przepisach. Spróbuj prostszych nazw (np. „kurczak” zamiast „kurczak zagrodowy”) albo skorzystaj z wyszukiwania na polskich stronach poniżej."
-      :"Żaden przepis nie pasuje do tych filtrów. Zmień posiłek, czas albo dietę.";
-    L.append(n);return;
-  }
+  if(!list.length){L.append(el("div","note",!ings.length?t.emptyNone:!mine.length?t.emptyUnknown:t.emptyFilters));return}
   list.slice(0,shown).forEach(({r,s},i)=>L.append(card(r,s,i===0)));
 }
 function card(r,s,open){
+  const t=T(),x=textOf(r);
   const d=el("details","recipe");d.open=open;
   const sm=el("summary");
-  sm.append(el("h3",null,r.n));
-  const meta=el("div","meta");[r.czas+" min",r.porcje+" "+plural(r.porcje,"porcja","porcje","porcji"),r.trud,TYP[r.typ],DIETA[r.dieta]].forEach(t=>meta.append(el("span",null,t)));
+  sm.append(el("h3",null,x.n));
+  const meta=el("div","meta");
+  [r.czas+" min",r.porcje+" "+plural(r.porcje,t.portions),t.trud[r.trud]||r.trud,t.typLabel[r.typ],t.dieta[r.dieta]].forEach(v=>meta.append(el("span",null,v)));
   sm.append(meta);
-  if(r.o)sm.append(el("p","desc",r.o));
+  if(x.o)sm.append(el("p","desc",x.o));
   const sc=el("div","score");
   sc.append(el("span","pill have","✓ "+s.used.join(", ")));
-  sc.append(s.need?el("span","pill miss","Do kupienia: "+s.need):el("span","pill have","Nic nie trzeba kupować"));
-  sm.append(sc,el("div","more","Pokaż przepis ▾"));
+  sc.append(s.need?el("span","pill miss",t.toBuy+": "+s.need):el("span","pill have",t.nothingToBuy));
+  sm.append(sc,el("div","more",t.show));
   d.append(sm);
   const b=el("div","body");
-  const a=el("div");a.append(el("div","label","Składniki"));
+  const a=el("div");a.append(el("div","label",t.ingredients));
   const ul=el("ul","ings");
   s.rows.forEach(it=>{const li=el("li",it.st);li.append(el("span","mk",it.st==="h"?"✓":it.st==="s"?"·":"+"));
-    const t=el("span");t.append(it.name);if(it.amt)t.append(" ",el("span","amt",it.amt));li.append(t);ul.append(li)});
-  a.append(ul,el("div","amt legend","✓ masz   · podstawowe   + do kupienia"));
-  const m=el("div");m.append(el("div","label","Przygotowanie"));
-  const ol=el("ol","steps");r.k.forEach(x=>ol.append(el("li",null,x)));m.append(ol);
-  const links=el("div","links");const g=el("a",null,"Zobacz inne wersje tego przepisu ↗");
-  g.href="https://www.google.com/search?q="+encodeURIComponent(r.n+" przepis");g.target="_blank";g.rel="noopener";links.append(g);
+    const nm=lang==="pl"?it.name:nameIn(it.key,lang,it.name);
+    const sp=el("span");sp.append(nm);if(it.amt)sp.append(" ",el("span","amt",amountIn(it.amt,lang)));li.append(sp);ul.append(li)});
+  a.append(ul,el("div","amt legend",t.legend));
+  const m=el("div");m.append(el("div","label",t.method));
+  const ol=el("ol","steps");x.k.forEach(v=>ol.append(el("li",null,v)));m.append(ol);
+  const links=el("div","links");
+  if(!x.tr&&t.untranslated)links.append(el("span","untr",t.untranslated));
+  const g=el("a",null,t.other);g.href="https://www.google.com/search?q="+encodeURIComponent(x.n+" "+t.recipeWord);g.target="_blank";g.rel="noopener";links.append(g);
   b.append(a,m,links);d.append(b);
   return d;
 }
 function renderSites(){
-  const box=$("siteLinks");box.textContent="";
+  const t=T(),box=$("siteLinks");box.textContent="";
   const words=ings.slice(0,4);
-  $("sitesText").textContent=words.length?"Przepisy z: "+words.join(", ")+". Otwiera się w nowej karcie.":"Dodaj składniki, żeby wyszukać przepisy na popularnych polskich stronach.";
+  $("sitesText").textContent=words.length?t.sitesWith+words.join(", ")+t.sitesTail:t.sitesEmpty;
   if(!words.length)return;
-  SITES.forEach(([name,host])=>{const a=el("a",null,name+" ↗");a.href="https://www.google.com/search?q="+encodeURIComponent("site:"+host+" przepis "+words.join(" "));a.target="_blank";a.rel="noopener";box.append(a)});
+  t.sites.forEach(([name,host])=>{const a=el("a",null,name+" ↗");a.href="https://www.google.com/search?q="+encodeURIComponent("site:"+host+" "+t.recipeWord+" "+words.join(" "));a.target="_blank";a.rel="noopener";box.append(a)});
 }
 function update(){renderChips();renderQuick();renderResults();renderSites()}
 
-load();loadOpts();update();
+lang=pickLang();load();applyStatic();loadOpts();update();
 </script>
 </body>
 </html>
